@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Salgados da Neuzinha | Vendas</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="sidebar-tray">
+          <div class="brand-panel">
+            <div class="brand-image-frame">
+              <img
+                class="brand-image"
+                src="./src/assets/neuzinha-marca.png"
+                alt="Marca Salgados da Neuzinha"
+              />
+            </div>
+            <div class="brand-copy">
+              <span class="brand-kicker">Painel Comercial</span>
+              <h1>Salgados da Neuzinha</h1>
+              <p class="sidebar-subtitle">
+                Gestao de vendas com identidade visual da marca.
+              </p>
+            </div>
+          </div>
+
+          <nav class="menu">
+            <a href="#painel" data-screen-link="painel">Painel</a>
+            <a href="#produtos" data-screen-link="produtos">Produtos</a>
+            <a href="#clientes" data-screen-link="clientes">Clientes</a>
+            <a href="#vendas" data-screen-link="vendas">Vendas</a>
+            <a href="#recebimentos" data-screen-link="recebimentos">Em aberto</a>
+          </nav>
+
+          <div class="sidebar-footer">
+            <p>Bandeja lateral para acesso rapido aos modulos de vendas.</p>
+          </div>
+
+          <div id="config-alert" class="config-alert hidden">
+            Preencha `src/config.js` com a URL e a chave anon do Supabase.
+          </div>
+        </div>
+      </aside>
+
+      <main class="content">
+        <header class="page-header">
+          <div class="hero-copy">
+            <span class="hero-tag">Salgados da Neuzinha</span>
+            <h2>Painel Comercial</h2>
+            <p>
+              Cadastros, consultas e acompanhamento de pedidos em aberto com
+              destaque para a identidade da marca.
+            </p>
+          </div>
+          <button id="refresh-button" class="secondary-button" type="button">
+            Atualizar dados
+          </button>
+        </header>
+
+        <section id="feedback" class="feedback hidden"></section>
+
+        <section
+          id="screen-painel"
+          class="screen screen-active"
+          data-screen="painel"
+        >
+          <section class="card">
+            <div class="section-header">
+              <div>
+                <h3>Painel comercial</h3>
+                <p>Resumo dos pedidos em aberto e das proximas encomendas.</p>
+              </div>
+            </div>
+
+            <div class="dashboard-grid">
+              <article class="metric-card">
+                <span class="metric-label">Total em aberto</span>
+                <strong id="home-open-amount">R$ 0,00</strong>
+                <p>Soma de todos os pedidos pendentes dos clientes.</p>
+              </article>
+
+              <article class="metric-card">
+                <span class="metric-label">Proximas encomendas</span>
+                <strong id="home-open-orders">0</strong>
+                <p>Quantidade de pedidos pendentes aguardando recebimento.</p>
+              </article>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="section-header">
+              <div>
+                <h3>Lista de proximas encomendas</h3>
+                <p>Pedidos em aberto para acompanhamento rapido.</p>
+              </div>
+              <a class="panel-link" href="#recebimentos">Abrir tela de em aberto</a>
+            </div>
+
+            <div id="home-upcoming-list" class="upcoming-list empty-state">
+              Nenhuma encomenda pendente no momento.
+            </div>
+          </section>
+        </section>
+
+        <section id="screen-produtos" class="screen" data-screen="produtos">
+          <section class="card">
+            <div class="section-header">
+              <div>
+                <h3>Cadastro de produtos</h3>
+                <p>Descricao, valor de venda, unidade de venda e estoque.</p>
+              </div>
+            </div>
+
+            <form id="product-form" class="form-grid">
+              <input id="product-id" type="hidden" />
+              <label>
+                Descricao
+                <input id="product-description" name="description" required />
+              </label>
+              <label>
+                Valor de venda
+                <input
+                  id="product-price"
+                  name="sale_price"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  required
+                />
+              </label>
+              <label>
+                Unidade de venda
+                <input id="product-unit" name="sale_unit" required />
+              </label>
+              <label>
+                Quantidade em estoque
+                <input
+                  id="product-stock"
+                  name="stock_quantity"
+                  type="number"
+                  min="0"
+                  step="0.001"
+                  required
+                />
+              </label>
+              <div class="form-actions">
+                <button id="product-submit-button" type="submit">Salvar produto</button>
+                <button
+                  id="product-cancel-button"
+                  class="secondary-button hidden"
+                  type="button"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </section>
+
+          <section class="card">
+            <div class="section-header">
+              <div>
+                <h3>Consulta de produtos</h3>
+                <p>Visualize os produtos cadastrados e o estoque atual.</p>
+              </div>
+            </div>
+
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Descricao</th>
+                    <th>Valor</th>
+                    <th>Unidade</th>
+                    <th>Estoque</th>
+                    <th>Acoes</th>
+                  </tr>
+                </thead>
+                <tbody id="products-table"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section id="screen-clientes" class="screen" data-screen="clientes">
+          <section class="card">
+            <div class="section-header">
+              <div>
+                <h3>Cadastro de clientes</h3>
+                <p>Nome do cliente e percentual de desconto.</p>
+              </div>
+            </div>
+
+            <form id="customer-form" class="form-grid">
+              <input id="customer-id" type="hidden" />
+              <label>
+                Nome
+                <input id="customer-name" name="name" required />
+              </label>
+              <label>
+                Percentual de desconto
+                <input
+                  id="customer-discount"
+                  name="discount_percent"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  required
+                />
+              </label>
+              <div class="form-actions">
+                <button id="customer-submit-button" type="submit">Salvar cliente</button>
+                <button
+                  id="customer-cancel-button"
+                  class="secondary-button hidden"
+                  type="button"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </section>
+
+          <section class="card">
+            <div class="section-header">
+              <div>
+                <h3>Consulta de clientes</h3>
+                <p>Veja os clientes cadastrados e os descontos configurados.</p>
+              </div>
+            </div>
+
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Desconto</th>
+                    <th>Acoes</th>
+                  </tr>
+                </thead>
+                <tbody id="customers-table"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section id="screen-vendas" class="screen" data-screen="vendas">
+          <section class="card">
+            <div class="section-header">
+              <div>
+                <h3>Cadastro de vendas</h3>
+                <p>Associe cliente, produtos vendidos, desconto e forma de pagamento.</p>
+              </div>
+            </div>
+
+            <form id="sale-form" class="sale-form">
+              <input id="sale-id" type="hidden" />
+              <div class="form-grid">
+                <label>
+                  Cliente
+                  <select id="sale-customer" required></select>
+                </label>
+                <label>
+                  Forma de pagamento
+                  <select id="sale-payment-method">
+                    <option value="">Em aberto</option>
+                    <option value="pix">Pix</option>
+                    <option value="dinheiro">Dinheiro</option>
+                  </select>
+                </label>
+                <label class="full-width">
+                  Observacoes
+                  <textarea id="sale-notes" rows="2"></textarea>
+                </label>
+              </div>
+
+              <div class="sale-items-header">
+                <h4>Produtos vendidos</h4>
+                <button id="add-item-button" class="secondary-button" type="button">
+                  Adicionar item
+                </button>
+              </div>
+
+              <div id="sale-items" class="sale-items"></div>
+
+              <div class="sale-summary">
+                <div>
+                  <span>Subtotal estimado</span>
+                  <strong id="sale-subtotal">R$ 0,00</strong>
+                </div>
+                <div>
+                  <span>Desconto do cliente</span>
+                  <strong id="sale-discount">R$ 0,00</strong>
+                </div>
+                <div>
+                  <span>Total estimado</span>
+                  <strong id="sale-total">R$ 0,00</strong>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button id="sale-submit-button" type="submit">Registrar venda</button>
+                <button
+                  id="sale-cancel-button"
+                  class="secondary-button hidden"
+                  type="button"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </section>
+
+          <section class="card">
+            <div class="section-header">
+              <div>
+                <h3>Consulta de vendas</h3>
+                <p>Visualize os pedidos registrados e a forma de pagamento.</p>
+              </div>
+            </div>
+
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Cliente</th>
+                    <th>Itens</th>
+                    <th>Pagamento</th>
+                    <th>Total</th>
+                    <th>Acoes</th>
+                  </tr>
+                </thead>
+                <tbody id="sales-table"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section id="screen-recebimentos" class="screen" data-screen="recebimentos">
+          <section class="card">
+            <div class="section-header">
+              <div>
+                <h3>Consulta de valores em aberto</h3>
+                <p>Veja os pedidos pendentes e o total devido por cliente.</p>
+              </div>
+            </div>
+
+            <div class="split-layout">
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Cliente</th>
+                      <th>Pedidos</th>
+                      <th>Total em aberto</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="balances-table"></tbody>
+                </table>
+              </div>
+
+              <div class="open-sales-panel">
+                <div class="section-header compact">
+                  <div>
+                    <h4>Pedidos em aberto</h4>
+                    <p id="open-sales-title">Selecione um cliente para consultar.</p>
+                  </div>
+                </div>
+                <div id="open-sales-list" class="open-sales-list empty-state">
+                  Nenhum cliente selecionado.
+                </div>
+              </div>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./src/config.js"></script>
+    <script src="./src/lib/formatters.js"></script>
+    <script src="./src/lib/supabase-client.js"></script>
+    <script src="./src/services/products.service.js"></script>
+    <script src="./src/services/customers.service.js"></script>
+    <script src="./src/services/sales.service.js"></script>
+    <script src="./src/services/receivables.service.js"></script>
+    <script src="./src/app.js"></script>
+  </body>
+</html>
