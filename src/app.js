@@ -5,7 +5,7 @@
   const screenMeta = {
     painel: {
       title: "Painel Comercial",
-      description: "Resumo dos pedidos em aberto e das proximas encomendas.",
+      description: "Resumo dos pedidos em aberto e das próximas encomendas.",
     },
     produtos: {
       title: "Produtos",
@@ -16,8 +16,8 @@
       description: "Cadastro e consulta dos clientes com percentual de desconto.",
     },
     vendas: {
-      title: "Vendas",
-      description: "Cadastro de vendas e consulta dos pedidos registrados.",
+      title: "Encomendas",
+      description: "Cadastro de encomendas com data, entrega e consulta dos pedidos registrados.",
     },
     recebimentos: {
       title: "Valores Em Aberto",
@@ -35,16 +35,14 @@
     editingProductId: "",
     editingCustomerId: "",
     editingSaleId: "",
+    isLoadingScreenData: false,
   };
 
   const elements = {
     configAlert: document.getElementById("config-alert"),
     feedback: document.getElementById("feedback"),
-    refreshButton: document.getElementById("refresh-button"),
     screens: Array.from(document.querySelectorAll(".screen")),
     menuLinks: Array.from(document.querySelectorAll("[data-screen-link]")),
-    heroTitle: document.querySelector(".hero-copy h2"),
-    heroDescription: document.querySelector(".hero-copy p"),
     productForm: document.getElementById("product-form"),
     productId: document.getElementById("product-id"),
     productSubmitButton: document.getElementById("product-submit-button"),
@@ -58,6 +56,8 @@
     saleSubmitButton: document.getElementById("sale-submit-button"),
     saleCancelButton: document.getElementById("sale-cancel-button"),
     saleCustomer: document.getElementById("sale-customer"),
+    saleOrderDate: document.getElementById("sale-order-date"),
+    saleDelivered: document.getElementById("sale-delivered"),
     salePaymentMethod: document.getElementById("sale-payment-method"),
     saleNotes: document.getElementById("sale-notes"),
     saleItems: document.getElementById("sale-items"),
@@ -105,8 +105,9 @@
 
   function updateHeaderForScreen(screenName) {
     const meta = screenMeta[screenName] || screenMeta.painel;
-    elements.heroTitle.textContent = meta.title;
-    elements.heroDescription.textContent = meta.description;
+    if (document.title) {
+      document.title = `Salgados da Neuzinha | ${meta.title}`;
+    }
   }
 
   function showScreen(screenName) {
@@ -126,6 +127,25 @@
     });
 
     updateHeaderForScreen(screenName);
+  }
+
+  async function refreshScreenData(showSuccessMessage = false) {
+    if (!window.SupabaseConnection.isConfigured || state.isLoadingScreenData) {
+      return;
+    }
+
+    state.isLoadingScreenData = true;
+
+    try {
+      await loadDashboard();
+      if (showSuccessMessage) {
+        showFeedback("Dados atualizados com sucesso.", "success");
+      }
+    } catch (error) {
+      showFeedback(error.message || "Erro ao atualizar dados.", "error");
+    } finally {
+      state.isLoadingScreenData = false;
+    }
   }
 
   function escapeHtml(value) {
@@ -159,6 +179,41 @@
     return paymentMethod === "pix" ? "Pix" : "Dinheiro";
   }
 
+  function getDeliveredLabel(delivered) {
+    return delivered ? "Sim" : "Não";
+  }
+
+  function getTodayDateValue() {
+    const now = new Date();
+    const timezoneOffset = now.getTimezoneOffset() * 60000;
+    return new Date(now.getTime() - timezoneOffset).toISOString().slice(0, 10);
+  }
+
+  function getOrderDateLabel(sale) {
+    return formatDate(sale.order_date || sale.sale_date);
+  }
+
+  function getProductSaleQuantity(product) {
+    return Number(product?.sale_quantity || 0);
+  }
+
+  function getProductUnitPrice(product) {
+    const saleQuantity = getProductSaleQuantity(product);
+    if (!product || saleQuantity <= 0) {
+      return 0;
+    }
+
+    return Number(product.sale_price || 0) / saleQuantity;
+  }
+
+  function calculateSaleItemTotal(product, quantity) {
+    if (!product || !quantity) {
+      return 0;
+    }
+
+    return getProductUnitPrice(product) * Number(quantity);
+  }
+
   function resetProductForm() {
     state.editingProductId = "";
     elements.productId.value = "";
@@ -181,7 +236,9 @@
     elements.saleForm.reset();
     elements.saleItems.innerHTML = "";
     addSaleItemRow("", "");
-    elements.saleSubmitButton.textContent = "Registrar venda";
+    elements.saleOrderDate.value = getTodayDateValue();
+    elements.saleDelivered.checked = false;
+    elements.saleSubmitButton.textContent = "Salvar encomenda";
     elements.saleCancelButton.classList.add("hidden");
     updateSaleSummary();
   }
@@ -191,7 +248,7 @@
     elements.productId.value = product.id;
     document.getElementById("product-description").value = product.description;
     document.getElementById("product-price").value = product.sale_price;
-    document.getElementById("product-unit").value = product.sale_unit;
+    document.getElementById("product-sale-quantity").value = product.sale_quantity;
     document.getElementById("product-stock").value = product.stock_quantity;
     elements.productSubmitButton.textContent = "Atualizar produto";
     elements.productCancelButton.classList.remove("hidden");
@@ -212,6 +269,8 @@
     state.editingSaleId = sale.id;
     elements.saleId.value = sale.id;
     elements.saleCustomer.value = sale.customer_id || sale.customers?.id || "";
+    elements.saleOrderDate.value = sale.order_date || getTodayDateValue();
+    elements.saleDelivered.checked = Boolean(sale.delivered);
     elements.salePaymentMethod.value = sale.payment_method || "";
     elements.saleNotes.value = sale.notes || "";
     elements.saleItems.innerHTML = "";
@@ -224,7 +283,7 @@
       addSaleItemRow("", "");
     }
 
-    elements.saleSubmitButton.textContent = "Atualizar venda";
+    elements.saleSubmitButton.textContent = "Atualizar encomenda";
     elements.saleCancelButton.classList.remove("hidden");
     updateSaleSummary();
     showScreen("vendas");
@@ -243,7 +302,7 @@
           <tr>
             <td>${escapeHtml(product.description)}</td>
             <td>${formatCurrency(product.sale_price)}</td>
-            <td>${escapeHtml(product.sale_unit)}</td>
+            <td>${formatQuantity(product.sale_quantity)}</td>
             <td>${formatQuantity(product.stock_quantity)}</td>
             <td>
               <div class="action-group">
@@ -313,7 +372,7 @@
   function renderSales() {
     if (!state.sales.length) {
       elements.salesTable.innerHTML =
-        '<tr><td colspan="6" class="empty-cell">Nenhuma venda registrada.</td></tr>';
+        '<tr><td colspan="7" class="empty-cell">Nenhuma encomenda registrada.</td></tr>';
       return;
     }
 
@@ -322,17 +381,16 @@
         const items = sale.sale_items
           .map(
             (item) =>
-              `${formatQuantity(item.quantity)} ${escapeHtml(
-                item.sale_unit
-              )} de ${escapeHtml(item.description)}`
+              `${formatQuantity(item.quantity)} de ${escapeHtml(item.description)}`
           )
           .join("<br />");
 
         return `
           <tr>
-            <td>${formatDate(sale.sale_date)}</td>
+            <td>${getOrderDateLabel(sale)}</td>
             <td>${escapeHtml(sale.customers?.name || "")}</td>
             <td>${items}</td>
+            <td>${getDeliveredLabel(sale.delivered)}</td>
             <td>${getPaymentLabel(sale.payment_method)}</td>
             <td>${formatCurrency(sale.total_amount)}</td>
             <td>
@@ -397,10 +455,10 @@
       0
     );
     const upcomingSales = state.sales
-      .filter((sale) => !sale.payment_method)
+      .filter((sale) => !sale.delivered)
       .slice()
       .sort((firstSale, secondSale) => {
-        return new Date(firstSale.sale_date) - new Date(secondSale.sale_date);
+        return new Date(firstSale.order_date || firstSale.sale_date) - new Date(secondSale.order_date || secondSale.sale_date);
       });
 
     elements.homeOpenAmount.textContent = formatCurrency(openAmount);
@@ -423,9 +481,9 @@
             <div class="upcoming-card-head">
               <div>
                 <strong>${escapeHtml(sale.customers?.name || "")}</strong>
-                <span>${formatDate(sale.sale_date)}</span>
+                <span>${getOrderDateLabel(sale)}</span>
               </div>
-              <span class="upcoming-badge">Pedido em aberto</span>
+              <span class="upcoming-badge">Entrega pendente</span>
             </div>
             <div class="upcoming-card-body">
               <p>${itemCount} item(ns) na encomenda</p>
@@ -462,11 +520,34 @@
           }>
             ${escapeHtml(product.description)} (${formatCurrency(
               product.sale_price
-            )} / ${escapeHtml(product.sale_unit)})
+            )} por ${formatQuantity(product.sale_quantity)})
           </option>
         `
       ),
     ].join("");
+  }
+
+  function updateSaleItemRowDisplay(row) {
+    const productId = row.querySelector(".sale-item-product").value;
+    const quantity = Number(row.querySelector(".sale-item-quantity").value);
+    const product = getProductById(productId);
+    const details = row.querySelector(".sale-item-details");
+    const totalElement = row.querySelector(".sale-item-line-total");
+
+    if (!product) {
+      details.textContent = "Selecione um produto para calcular automaticamente.";
+      totalElement.textContent = formatCurrency(0);
+      return;
+    }
+
+    const saleQuantity = getProductSaleQuantity(product);
+    const unitPrice = getProductUnitPrice(product);
+    const lineTotal = calculateSaleItemTotal(product, quantity);
+
+    details.textContent = `Referência: ${formatCurrency(product.sale_price)} para ${formatQuantity(
+      saleQuantity
+    )}. Valor proporcional: ${formatCurrency(unitPrice)} por unidade.`;
+    totalElement.textContent = formatCurrency(lineTotal);
   }
 
   function addSaleItemRow(selectedProductId, quantity) {
@@ -494,9 +575,14 @@
           Remover
         </button>
       </div>
+      <div class="sale-item-meta">
+        <span class="sale-item-details">Selecione um produto para calcular automaticamente.</span>
+        <strong class="sale-item-line-total">${formatCurrency(0)}</strong>
+      </div>
     `;
 
     elements.saleItems.appendChild(itemRow);
+    updateSaleItemRowDisplay(itemRow);
   }
 
   function renderOpenSales(openSales, customerName) {
@@ -507,7 +593,7 @@
     if (!openSales.length) {
       elements.openSalesList.className = "open-sales-list empty-state";
       elements.openSalesList.textContent =
-        "Este cliente nao possui pedidos pendentes.";
+        "Este cliente não possui pedidos pendentes.";
       return;
     }
 
@@ -518,11 +604,15 @@
           <article class="open-sale-card">
             <div>
               <strong>Pedido ${sale.sale_code}</strong>
-              <span>${formatDate(sale.sale_date)}</span>
+              <span>${formatDate(sale.order_date || sale.sale_date)}</span>
             </div>
             <div>
               <span>Total</span>
               <strong>${formatCurrency(sale.total_amount)}</strong>
+            </div>
+            <div>
+              <span>Entregue</span>
+              <p>${sale.delivered ? "Sim" : "Não"}</p>
             </div>
             <div>
               <span>Produtos</span>
@@ -570,7 +660,7 @@
     const customer = getSelectedCustomer();
     const subtotal = items.reduce((sum, item) => {
       const product = getProductById(item.product_id);
-      return sum + Number(product ? product.sale_price : 0) * item.quantity;
+      return sum + calculateSaleItemTotal(product, item.quantity);
     }, 0);
     const discount = subtotal * (Number(customer?.discount_percent || 0) / 100);
     const total = subtotal - discount;
@@ -610,12 +700,12 @@
     } else if (!elements.saleItems.children.length) {
       addSaleItemRow("", "");
     } else {
-      Array.from(elements.saleItems.querySelectorAll(".sale-item-product")).forEach(
-        (select) => {
-          const currentValue = select.value;
-          select.innerHTML = buildProductOptions(currentValue);
-        }
-      );
+      Array.from(elements.saleItems.querySelectorAll(".sale-item-row")).forEach((row) => {
+        const select = row.querySelector(".sale-item-product");
+        const currentValue = select.value;
+        select.innerHTML = buildProductOptions(currentValue);
+        updateSaleItemRowDisplay(row);
+      });
     }
 
     updateSaleSummary();
@@ -650,9 +740,14 @@
     const payload = {
       description: formData.get("description").trim(),
       sale_price: Number(formData.get("sale_price")),
-      sale_unit: formData.get("sale_unit").trim(),
+      sale_quantity: Number(formData.get("sale_quantity")),
       stock_quantity: Number(formData.get("stock_quantity")),
     };
+
+    if (payload.sale_quantity <= 0) {
+      showFeedback("Informe uma quantidade de venda maior que zero.", "error");
+      return;
+    }
 
     try {
       if (state.editingProductId) {
@@ -718,17 +813,24 @@
 
     const items = collectSaleItems();
     if (!items.length) {
-      showFeedback("Adicione pelo menos um item valido para registrar a venda.", "error");
+      showFeedback("Adicione pelo menos um item válido para registrar a encomenda.", "error");
       return;
     }
 
     if (!elements.saleCustomer.value) {
-      showFeedback("Selecione um cliente para registrar a venda.", "error");
+      showFeedback("Selecione um cliente para registrar a encomenda.", "error");
+      return;
+    }
+
+    if (!elements.saleOrderDate.value) {
+      showFeedback("Informe a data da encomenda.", "error");
       return;
     }
 
     const payload = {
       customerId: elements.saleCustomer.value,
+      orderDate: elements.saleOrderDate.value,
+      delivered: elements.saleDelivered.checked,
       paymentMethod: elements.salePaymentMethod.value,
       notes: elements.saleNotes.value.trim(),
       items,
@@ -743,7 +845,7 @@
         resetSaleForm();
         await loadDashboard();
         showScreen("vendas");
-        showFeedback("Venda atualizada com sucesso.", "success");
+        showFeedback("Encomenda atualizada com sucesso.", "success");
         return;
       }
 
@@ -751,9 +853,9 @@
       resetSaleForm();
       await loadDashboard();
       showScreen("vendas");
-      showFeedback("Venda registrada com sucesso.", "success");
+      showFeedback("Encomenda cadastrada com sucesso.", "success");
     } catch (error) {
-      showFeedback(error.message || "Erro ao salvar venda.", "error");
+      showFeedback(error.message || "Erro ao salvar encomenda.", "error");
     }
   }
 
@@ -779,7 +881,7 @@
         resetProductForm();
       }
       await loadDashboard();
-      showFeedback("Produto excluido com sucesso.", "success");
+      showFeedback("Produto excluído com sucesso.", "success");
     } catch (error) {
       showFeedback(error.message || "Erro ao excluir produto.", "error");
     }
@@ -807,7 +909,7 @@
         resetCustomerForm();
       }
       await loadDashboard();
-      showFeedback("Cliente excluido com sucesso.", "success");
+      showFeedback("Cliente excluído com sucesso.", "success");
     } catch (error) {
       showFeedback(error.message || "Erro ao excluir cliente.", "error");
     }
@@ -825,7 +927,7 @@
       return;
     }
 
-    if (!window.confirm(`Deseja excluir a venda ${sale.sale_code}?`)) {
+    if (!window.confirm(`Deseja excluir a encomenda ${sale.sale_code}?`)) {
       return;
     }
 
@@ -836,11 +938,11 @@
       }
       await loadDashboard();
       showScreen("vendas");
-      showFeedback("Venda excluida com sucesso.", "success");
+      showFeedback("Encomenda excluída com sucesso.", "success");
     } catch (error) {
       showFeedback(
         error.message ||
-          "Erro ao excluir venda. Execute o SQL complementar de update/delete no Supabase.",
+          "Erro ao excluir encomenda. Execute o SQL complementar de alteração no Supabase.",
         "error"
       );
     }
@@ -879,29 +981,18 @@
   }
 
   function bindEvents() {
-    elements.refreshButton.addEventListener("click", async () => {
-      clearFeedback();
-
-      if (!requireConfiguration()) {
-        return;
-      }
-
-      try {
-        await loadDashboard();
-        showFeedback("Dados atualizados com sucesso.", "success");
-      } catch (error) {
-        showFeedback(error.message || "Erro ao atualizar dados.", "error");
-      }
-    });
-
     elements.menuLinks.forEach((link) => {
-      link.addEventListener("click", () => {
-        showScreen(link.dataset.screenLink);
+      link.addEventListener("click", async () => {
+        if (link.dataset.screenLink === state.currentScreen) {
+          showScreen(link.dataset.screenLink);
+          await refreshScreenData();
+        }
       });
     });
 
-    window.addEventListener("hashchange", () => {
+    window.addEventListener("hashchange", async () => {
       showScreen(getScreenFromHash());
+      await refreshScreenData();
     });
 
     elements.productForm.addEventListener("submit", handleProductSubmit);
@@ -966,7 +1057,7 @@
       if (event.target.classList.contains("remove-item-button")) {
         const rows = elements.saleItems.querySelectorAll(".sale-item-row");
         if (rows.length === 1) {
-          showFeedback("A venda precisa ter pelo menos uma linha de item.", "error");
+          showFeedback("A encomenda precisa ter pelo menos uma linha de item.", "error");
           return;
         }
 
@@ -975,8 +1066,20 @@
       }
     });
 
-    elements.saleItems.addEventListener("input", updateSaleSummary);
-    elements.saleItems.addEventListener("change", updateSaleSummary);
+    elements.saleItems.addEventListener("input", (event) => {
+      const row = event.target.closest(".sale-item-row");
+      if (row) {
+        updateSaleItemRowDisplay(row);
+      }
+      updateSaleSummary();
+    });
+    elements.saleItems.addEventListener("change", (event) => {
+      const row = event.target.closest(".sale-item-row");
+      if (row) {
+        updateSaleItemRowDisplay(row);
+      }
+      updateSaleSummary();
+    });
 
     elements.balancesTable.addEventListener("click", async (event) => {
       const button = event.target.closest("[data-customer-id]");

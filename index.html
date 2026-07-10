@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Salgados da Neuzinha | Vendas</title>
+    <title>Salgados da Neuzinha | Encomendas</title>
     <link rel="stylesheet" href="./src/styles.css" />
   </head>
   <body>
@@ -19,11 +19,7 @@
               />
             </div>
             <div class="brand-copy">
-              <span class="brand-kicker">Painel Comercial</span>
               <h1>Salgados da Neuzinha</h1>
-              <p class="sidebar-subtitle">
-                Gestao de vendas com identidade visual da marca.
-              </p>
             </div>
           </div>
 
@@ -31,13 +27,9 @@
             <a href="#painel" data-screen-link="painel">Painel</a>
             <a href="#produtos" data-screen-link="produtos">Produtos</a>
             <a href="#clientes" data-screen-link="clientes">Clientes</a>
-            <a href="#vendas" data-screen-link="vendas">Vendas</a>
+            <a href="#vendas" data-screen-link="vendas">Encomendas</a>
             <a href="#recebimentos" data-screen-link="recebimentos">Em aberto</a>
           </nav>
-
-          <div class="sidebar-footer">
-            <p>Bandeja lateral para acesso rapido aos modulos de vendas.</p>
-          </div>
 
           <div id="config-alert" class="config-alert hidden">
             Preencha `src/config.js` com a URL e a chave anon do Supabase.
@@ -46,20 +38,6 @@
       </aside>
 
       <main class="content">
-        <header class="page-header">
-          <div class="hero-copy">
-            <span class="hero-tag">Salgados da Neuzinha</span>
-            <h2>Painel Comercial</h2>
-            <p>
-              Cadastros, consultas e acompanhamento de pedidos em aberto com
-              destaque para a identidade da marca.
-            </p>
-          </div>
-          <button id="refresh-button" class="secondary-button" type="button">
-            Atualizar dados
-          </button>
-        </header>
-
         <section id="feedback" class="feedback hidden"></section>
 
         <section
@@ -71,7 +49,7 @@
             <div class="section-header">
               <div>
                 <h3>Painel comercial</h3>
-                <p>Resumo dos pedidos em aberto e das proximas encomendas.</p>
+                <p>Resumo dos pedidos em aberto e das próximas encomendas.</p>
               </div>
             </div>
 
@@ -83,9 +61,9 @@
               </article>
 
               <article class="metric-card">
-                <span class="metric-label">Proximas encomendas</span>
+                <span class="metric-label">Próximas encomendas</span>
                 <strong id="home-open-orders">0</strong>
-                <p>Quantidade de pedidos pendentes aguardando recebimento.</p>
+                <p>Quantidade de encomendas pendentes aguardando entrega.</p>
               </article>
             </div>
           </section>
@@ -93,8 +71,8 @@
           <section class="card">
             <div class="section-header">
               <div>
-                <h3>Lista de proximas encomendas</h3>
-                <p>Pedidos em aberto para acompanhamento rapido.</p>
+                <h3>Lista de próximas encomendas</h3>
+                <p>Encomendas pendentes para acompanhamento rápido.</p>
               </div>
               <a class="panel-link" href="#recebimentos">Abrir tela de em aberto</a>
             </div>
@@ -110,14 +88,14 @@
             <div class="section-header">
               <div>
                 <h3>Cadastro de produtos</h3>
-                <p>Descricao, valor de venda, unidade de venda e estoque.</p>
+                <p>Descrição, valor de venda, quantidade de venda e estoque.</p>
               </div>
             </div>
 
             <form id="product-form" class="form-grid">
               <input id="product-id" type="hidden" />
               <label>
-                Descricao
+                Descrição
                 <input id="product-description" name="description" required />
               </label>
               <label>
@@ -132,8 +110,15 @@
                 />
               </label>
               <label>
-                Unidade de venda
-                <input id="product-unit" name="sale_unit" required />
+                Quantidade de venda
+                <input
+                  id="product-sale-quantity"
+                  name="sale_quantity"
+                  type="number"
+                  min="0.001"
+                  step="0.001"
+                  required
+                />
               </label>
               <label>
                 Quantidade em estoque
@@ -171,11 +156,11 @@
               <table>
                 <thead>
                   <tr>
-                    <th>Descricao</th>
+                    <th>Descrição</th>
                     <th>Valor</th>
-                    <th>Unidade</th>
+                    <th>Quantidade de venda</th>
                     <th>Estoque</th>
-                    <th>Acoes</th>
+                    <th>Ações</th>
                   </tr>
                 </thead>
                 <tbody id="products-table"></tbody>
@@ -238,7 +223,7 @@
                   <tr>
                     <th>Nome</th>
                     <th>Desconto</th>
-                    <th>Acoes</th>
+                    <th>Ações</th>
                   </tr>
                 </thead>
                 <tbody id="customers-table"></tbody>
@@ -251,8 +236,8 @@
           <section class="card">
             <div class="section-header">
               <div>
-                <h3>Cadastro de vendas</h3>
-                <p>Associe cliente, produtos vendidos, desconto e forma de pagamento.</p>
+                <h3>Cadastro de encomendas</h3>
+                <p>Associe cliente, produtos, data da encomenda, entrega e forma de pagamento.</p>
               </div>
             </div>
 
@@ -264,6 +249,10 @@
                   <select id="sale-customer" required></select>
                 </label>
                 <label>
+                  Data da encomenda
+                  <input id="sale-order-date" type="date" required />
+                </label>
+                <label>
                   Forma de pagamento
                   <select id="sale-payment-method">
                     <option value="">Em aberto</option>
@@ -271,14 +260,21 @@
                     <option value="dinheiro">Dinheiro</option>
                   </select>
                 </label>
+                <label class="checkbox-field">
+                  <span>Entregue</span>
+                  <span class="checkbox-control">
+                    <input id="sale-delivered" type="checkbox" />
+                    <span>Marcar encomenda como entregue</span>
+                  </span>
+                </label>
                 <label class="full-width">
-                  Observacoes
+                  Observações
                   <textarea id="sale-notes" rows="2"></textarea>
                 </label>
               </div>
 
               <div class="sale-items-header">
-                <h4>Produtos vendidos</h4>
+                <h4>Produtos da encomenda</h4>
                 <button id="add-item-button" class="secondary-button" type="button">
                   Adicionar item
                 </button>
@@ -302,7 +298,7 @@
               </div>
 
               <div class="form-actions">
-                <button id="sale-submit-button" type="submit">Registrar venda</button>
+                <button id="sale-submit-button" type="submit">Salvar encomenda</button>
                 <button
                   id="sale-cancel-button"
                   class="secondary-button hidden"
@@ -317,8 +313,8 @@
           <section class="card">
             <div class="section-header">
               <div>
-                <h3>Consulta de vendas</h3>
-                <p>Visualize os pedidos registrados e a forma de pagamento.</p>
+                <h3>Consulta de encomendas</h3>
+                <p>Visualize as encomendas registradas, a entrega e a forma de pagamento.</p>
               </div>
             </div>
 
@@ -326,12 +322,13 @@
               <table>
                 <thead>
                   <tr>
-                    <th>Data</th>
+                    <th>Data da encomenda</th>
                     <th>Cliente</th>
                     <th>Itens</th>
+                    <th>Entregue</th>
                     <th>Pagamento</th>
                     <th>Total</th>
-                    <th>Acoes</th>
+                    <th>Ações</th>
                   </tr>
                 </thead>
                 <tbody id="sales-table"></tbody>

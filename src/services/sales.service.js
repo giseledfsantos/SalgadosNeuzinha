@@ -4,6 +4,8 @@
   async function create(payload) {
     const { data, error } = await client.rpc("create_sale", {
       p_customer_id: payload.customerId,
+      p_order_date: payload.orderDate,
+      p_delivered: payload.delivered,
       p_payment_method: payload.paymentMethod || null,
       p_items: payload.items,
       p_notes: payload.notes || null,
@@ -24,6 +26,8 @@
           id,
           sale_code,
           customer_id,
+          order_date,
+          delivered,
           sale_date,
           payment_method,
           gross_amount,
@@ -39,14 +43,14 @@
             id,
             product_id,
             quantity,
+            reference_quantity,
             unit_price,
             line_total,
-            description,
-            sale_unit
+            description
           )
         `
       )
-      .order("sale_date", { ascending: false });
+      .order("order_date", { ascending: false });
 
     if (error) {
       throw error;
@@ -59,6 +63,8 @@
     const { data, error } = await client.rpc("update_sale", {
       p_sale_id: payload.saleId,
       p_customer_id: payload.customerId,
+      p_order_date: payload.orderDate,
+      p_delivered: payload.delivered,
       p_payment_method: payload.paymentMethod || null,
       p_items: payload.items,
       p_notes: payload.notes || null,
