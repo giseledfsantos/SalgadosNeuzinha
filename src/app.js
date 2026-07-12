@@ -58,7 +58,7 @@
     saleCustomer: document.getElementById("sale-customer"),
     saleOrderDate: document.getElementById("sale-order-date"),
     saleDelivered: document.getElementById("sale-delivered"),
-    salePaymentMethod: document.getElementById("sale-payment-method"),
+    salePaidAmount: document.getElementById("sale-paid-amount"),
     saleNotes: document.getElementById("sale-notes"),
     saleItems: document.getElementById("sale-items"),
     addItemButton: document.getElementById("add-item-button"),
@@ -71,6 +71,7 @@
     saleSubtotal: document.getElementById("sale-subtotal"),
     saleDiscount: document.getElementById("sale-discount"),
     saleTotal: document.getElementById("sale-total"),
+    saleOpenAmount: document.getElementById("sale-open-amount"),
     homeOpenAmount: document.getElementById("home-open-amount"),
     homeOpenOrders: document.getElementById("home-open-orders"),
     homeUpcomingList: document.getElementById("home-upcoming-list"),
@@ -171,14 +172,6 @@
     return state.sales.find((sale) => sale.id === saleId);
   }
 
-  function getPaymentLabel(paymentMethod) {
-    if (!paymentMethod) {
-      return "Em aberto";
-    }
-
-    return paymentMethod === "pix" ? "Pix" : "Dinheiro";
-  }
-
   function getDeliveredLabel(delivered) {
     return delivered ? "Sim" : "Não";
   }
@@ -214,6 +207,27 @@
     return getProductUnitPrice(product) * Number(quantity);
   }
 
+  function getSaleSummaryValues() {
+    const items = collectSaleItems();
+    const customer = getSelectedCustomer();
+    const subtotal = items.reduce((sum, item) => {
+      const product = getProductById(item.product_id);
+      return sum + calculateSaleItemTotal(product, item.quantity);
+    }, 0);
+    const discount = subtotal * (Number(customer?.discount_percent || 0) / 100);
+    const total = subtotal - discount;
+    const paidAmount = Number(elements.salePaidAmount.value || 0);
+    const openAmount = Math.max(total - paidAmount, 0);
+
+    return {
+      subtotal,
+      discount,
+      total,
+      paidAmount,
+      openAmount,
+    };
+  }
+
   function resetProductForm() {
     state.editingProductId = "";
     elements.productId.value = "";
@@ -238,6 +252,7 @@
     addSaleItemRow("", "");
     elements.saleOrderDate.value = getTodayDateValue();
     elements.saleDelivered.checked = false;
+    elements.salePaidAmount.value = "0";
     elements.saleSubmitButton.textContent = "Salvar encomenda";
     elements.saleCancelButton.classList.add("hidden");
     updateSaleSummary();
@@ -271,7 +286,7 @@
     elements.saleCustomer.value = sale.customer_id || sale.customers?.id || "";
     elements.saleOrderDate.value = sale.order_date || getTodayDateValue();
     elements.saleDelivered.checked = Boolean(sale.delivered);
-    elements.salePaymentMethod.value = sale.payment_method || "";
+    elements.salePaidAmount.value = Number(sale.paid_amount || 0);
     elements.saleNotes.value = sale.notes || "";
     elements.saleItems.innerHTML = "";
 
@@ -391,7 +406,7 @@
             <td>${escapeHtml(sale.customers?.name || "")}</td>
             <td>${items}</td>
             <td>${getDeliveredLabel(sale.delivered)}</td>
-            <td>${getPaymentLabel(sale.payment_method)}</td>
+            <td>${formatCurrency(sale.paid_amount || 0)}</td>
             <td>${formatCurrency(sale.total_amount)}</td>
             <td>
               <div class="action-group">
@@ -611,6 +626,14 @@
               <strong>${formatCurrency(sale.total_amount)}</strong>
             </div>
             <div>
+              <span>Valor pago</span>
+              <p>${formatCurrency(sale.paid_amount || 0)}</p>
+            </div>
+            <div>
+              <span>Em aberto</span>
+              <strong>${formatCurrency(sale.open_amount || 0)}</strong>
+            </div>
+            <div>
               <span>Entregue</span>
               <p>${sale.delivered ? "Sim" : "Não"}</p>
             </div>
@@ -623,17 +646,8 @@
                 type="button"
                 class="table-action"
                 data-sale-id="${sale.sale_id}"
-                data-payment-method="pix"
               >
-                Baixar com Pix
-              </button>
-              <button
-                type="button"
-                class="table-action"
-                data-sale-id="${sale.sale_id}"
-                data-payment-method="dinheiro"
-              >
-                Baixar com Dinheiro
+                Quitar pedido
               </button>
             </div>
           </article>
@@ -656,18 +670,11 @@
   }
 
   function updateSaleSummary() {
-    const items = collectSaleItems();
-    const customer = getSelectedCustomer();
-    const subtotal = items.reduce((sum, item) => {
-      const product = getProductById(item.product_id);
-      return sum + calculateSaleItemTotal(product, item.quantity);
-    }, 0);
-    const discount = subtotal * (Number(customer?.discount_percent || 0) / 100);
-    const total = subtotal - discount;
-
+    const { subtotal, discount, total, openAmount } = getSaleSummaryValues();
     elements.saleSubtotal.textContent = formatCurrency(subtotal);
     elements.saleDiscount.textContent = formatCurrency(discount);
     elements.saleTotal.textContent = formatCurrency(total);
+    elements.saleOpenAmount.textContent = formatCurrency(openAmount);
   }
 
   async function loadDashboard() {
@@ -831,10 +838,22 @@
       customerId: elements.saleCustomer.value,
       orderDate: elements.saleOrderDate.value,
       delivered: elements.saleDelivered.checked,
-      paymentMethod: elements.salePaymentMethod.value,
+      paidAmount: Number(elements.salePaidAmount.value || 0),
       notes: elements.saleNotes.value.trim(),
       items,
     };
+
+    const { total } = getSaleSummaryValues();
+
+    if (payload.paidAmount < 0) {
+      showFeedback("Informe um valor pago igual ou maior que zero.", "error");
+      return;
+    }
+
+    if (payload.paidAmount > total) {
+      showFeedback("O valor pago não pode ser maior que o total da encomenda.", "error");
+      return;
+    }
 
     try {
       if (state.editingSaleId) {
@@ -966,13 +985,13 @@
     }
   }
 
-  async function handleMarkAsPaid(saleId, paymentMethod) {
+  async function handleMarkAsPaid(saleId) {
     if (!requireConfiguration()) {
       return;
     }
 
     try {
-      await Sales.markAsPaid(saleId, paymentMethod);
+      await Sales.markAsPaid(saleId);
       await loadDashboard();
       showFeedback("Pedido baixado com sucesso.", "success");
     } catch (error) {
@@ -1048,6 +1067,7 @@
     });
 
     elements.saleCustomer.addEventListener("change", updateSaleSummary);
+    elements.salePaidAmount.addEventListener("input", updateSaleSummary);
     elements.addItemButton.addEventListener("click", () => {
       addSaleItemRow("", "");
       updateSaleSummary();
@@ -1101,10 +1121,7 @@
         return;
       }
 
-      await handleMarkAsPaid(
-        button.dataset.saleId,
-        button.dataset.paymentMethod
-      );
+      await handleMarkAsPaid(button.dataset.saleId);
     });
   }
 

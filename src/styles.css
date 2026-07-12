@@ -63,30 +63,29 @@ button {
 
 .app-shell {
   display: grid;
-  grid-template-columns: 330px 1fr;
+  grid-template-columns: 1fr;
   min-height: 100vh;
   position: relative;
   z-index: 1;
 }
 
 .sidebar {
-  padding: 22px;
-  position: sticky;
-  top: 0;
-  height: 100vh;
+  padding: 12px 12px 0;
+  position: static;
+  height: auto;
 }
 
 .sidebar-tray {
   background: linear-gradient(180deg, rgba(34, 50, 75, 0.96), rgba(92, 52, 40, 0.95));
   color: #fffaf5;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 30px;
-  padding: 24px 20px;
+  border-radius: 24px;
+  padding: 16px;
   box-shadow: 0 26px 55px rgba(34, 50, 75, 0.22);
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  min-height: calc(100vh - 44px);
+  gap: 16px;
+  min-height: auto;
   overflow: hidden;
   position: relative;
 }
@@ -113,19 +112,19 @@ button {
 
 .brand-panel {
   display: grid;
-  grid-template-columns: 84px 1fr;
-  gap: 14px;
+  grid-template-columns: 1fr;
+  gap: 12px;
   align-items: center;
-  padding: 14px;
-  border-radius: 22px;
+  padding: 12px;
+  border-radius: 20px;
   background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(6px);
 }
 
 .brand-image-frame {
-  width: 84px;
-  height: 84px;
-  border-radius: 22px;
+  width: 100%;
+  height: 160px;
+  border-radius: 18px;
   overflow: hidden;
   background:
     linear-gradient(180deg, rgba(251, 247, 241, 0.16), rgba(194, 138, 66, 0.28)),
@@ -156,7 +155,7 @@ button {
 
 .sidebar h1 {
   margin: 0;
-  font-size: 1.7rem;
+  font-size: 1.45rem;
   line-height: 1.05;
 }
 
@@ -180,18 +179,21 @@ button {
 
 .menu {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .menu a {
   color: #fffaf5;
   text-decoration: none;
-  padding: 13px 16px;
-  border-radius: 16px;
+  padding: 11px 14px;
+  border-radius: 14px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.08);
   font-weight: 700;
+  flex: 1 1 calc(50% - 10px);
+  text-align: center;
   transition:
     transform 0.2s ease,
     background 0.2s ease,
@@ -219,7 +221,7 @@ button {
 }
 
 .content {
-  padding: 28px 30px 34px 10px;
+  padding: 12px 12px 24px;
 }
 
 .screen {
@@ -235,7 +237,7 @@ button {
 .sale-summary,
 .split-layout {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
 }
@@ -254,22 +256,22 @@ button {
 .card {
   background: var(--color-card);
   border: 1px solid rgba(194, 138, 66, 0.16);
-  border-radius: 24px;
-  padding: 24px;
+  border-radius: 20px;
+  padding: 16px;
   box-shadow: var(--shadow-soft);
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   backdrop-filter: blur(10px);
 }
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 18px;
+  grid-template-columns: 1fr;
+  gap: 14px;
 }
 
 .metric-card {
-  padding: 22px;
-  border-radius: 22px;
+  padding: 18px;
+  border-radius: 18px;
   background:
     linear-gradient(135deg, rgba(255, 253, 249, 0.96), rgba(245, 232, 214, 0.88));
   border: 1px solid rgba(194, 138, 66, 0.16);
@@ -279,7 +281,7 @@ button {
 .metric-card strong {
   display: block;
   margin: 8px 0;
-  font-size: 2rem;
+  font-size: 1.75rem;
   color: var(--color-clay-dark);
 }
 
@@ -313,8 +315,8 @@ button {
 }
 
 .upcoming-card {
-  padding: 18px 20px;
-  border-radius: 20px;
+  padding: 16px;
+  border-radius: 18px;
   background: rgba(255, 252, 247, 0.92);
   border: 1px solid rgba(194, 138, 66, 0.16);
   box-shadow: 0 10px 24px rgba(91, 52, 40, 0.08);
@@ -323,7 +325,8 @@ button {
 .upcoming-card-head,
 .upcoming-card-body {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 14px;
 }
@@ -364,9 +367,9 @@ button {
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-  margin: 20px 0 24px;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin: 16px 0 20px;
 }
 
 .full-width {
@@ -374,7 +377,7 @@ button {
 }
 
 .checkbox-field {
-  justify-content: end;
+  align-self: flex-start;
 }
 
 .checkbox-control {
@@ -429,6 +432,7 @@ button {
   color: #ffffff;
   font-weight: 700;
   box-shadow: 0 14px 26px rgba(181, 58, 32, 0.22);
+  width: 100%;
 }
 
 .secondary-button,
@@ -446,7 +450,8 @@ button {
 
 .form-actions {
   display: flex;
-  align-items: end;
+  align-items: stretch;
+  flex-direction: column;
   gap: 10px;
   flex-wrap: wrap;
 }
@@ -465,7 +470,7 @@ button {
 
 .sale-item-row {
   display: grid;
-  grid-template-columns: minmax(250px, 2fr) minmax(150px, 1fr) auto;
+  grid-template-columns: 1fr;
   gap: 12px;
   align-items: end;
 }
@@ -473,7 +478,8 @@ button {
 .sale-item-meta {
   grid-column: 1 / -1;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
   padding: 10px 14px;
@@ -489,18 +495,19 @@ button {
 
 .sale-item-line-total {
   color: var(--color-clay-dark);
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .sale-item-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: stretch;
 }
 
 .sale-summary {
   justify-content: flex-start;
-  flex-wrap: wrap;
-  gap: 24px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
   padding: 16px;
   border-radius: 14px;
   background: rgba(232, 215, 191, 0.34);
@@ -526,7 +533,7 @@ table {
 th,
 td {
   text-align: left;
-  padding: 14px 12px;
+  padding: 12px 10px;
   border-bottom: 1px solid var(--color-line);
   vertical-align: top;
 }
@@ -538,6 +545,7 @@ th {
 
 .action-group {
   display: flex;
+  flex-direction: column;
   gap: 8px;
   flex-wrap: wrap;
 }
@@ -573,12 +581,14 @@ th {
 }
 
 .split-layout {
+  flex-direction: column;
   align-items: flex-start;
-  gap: 24px;
+  gap: 16px;
 }
 
 .split-layout > * {
   flex: 1;
+  width: 100%;
 }
 
 .open-sales-panel {
@@ -611,61 +621,205 @@ th {
 
 .open-sale-actions {
   display: flex;
+  flex-direction: column;
   gap: 8px;
 }
 
-@media (max-width: 1024px) {
-  .app-shell {
-    grid-template-columns: 1fr;
-  }
-
-  .sidebar {
-    position: static;
-    height: auto;
-    padding-bottom: 0;
-  }
-
-  .sidebar-tray {
-    min-height: auto;
-  }
-
-  .split-layout {
-    flex-direction: column;
+@media (min-width: 768px) {
+  .section-header,
+  .sale-items-header {
+    flex-direction: row;
+    align-items: center;
   }
 
   .content {
     padding: 20px;
   }
-}
 
-@media (max-width: 768px) {
-  .page-header,
-  .section-header,
-  .sale-items-header {
-    flex-direction: column;
-    align-items: flex-start;
+  .card {
+    padding: 20px;
+    margin-bottom: 20px;
   }
 
-  .brand-panel {
-    grid-template-columns: 1fr;
+  .dashboard-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .brand-image-frame {
-    width: 100%;
-    height: 180px;
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .menu a {
+    flex: 1 1 calc(33.333% - 10px);
+  }
+
+  .form-actions {
+    flex-direction: row;
+    align-items: end;
+  }
+
+  .form-actions button,
+  .sale-item-actions button,
+  .open-sale-actions button,
+  .action-group button {
+    width: auto;
   }
 
   .sale-item-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 2fr) minmax(140px, 1fr) auto;
+  }
+
+  .sale-item-meta {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .sale-item-line-total {
+    white-space: nowrap;
+  }
+
+  .sale-summary {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .action-group {
+    flex-direction: row;
+  }
+
+  .split-layout {
+    gap: 20px;
+  }
+
+  .open-sale-actions {
+    flex-direction: row;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-shell {
+    grid-template-columns: 330px 1fr;
+  }
+
+  .sidebar {
+    padding: 22px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+
+  .sidebar-tray {
+    padding: 24px 20px;
+    border-radius: 30px;
+    gap: 20px;
+    min-height: calc(100vh - 44px);
+  }
+
+  .brand-panel {
+    grid-template-columns: 84px 1fr;
+    gap: 14px;
+    padding: 14px;
+    border-radius: 22px;
+  }
+
+  .brand-image-frame {
+    width: 84px;
+    height: 84px;
+    border-radius: 22px;
+  }
+
+  .sidebar h1 {
+    font-size: 1.7rem;
+  }
+
+  .menu {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .menu a {
+    flex: 0 0 auto;
+    width: 100%;
+    text-align: left;
+    padding: 13px 16px;
+    border-radius: 16px;
+  }
+
+  .content {
+    padding: 28px 30px 34px 10px;
+  }
+
+  .card {
+    border-radius: 24px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+  }
+
+  .metric-card {
+    padding: 22px;
+    border-radius: 22px;
+  }
+
+  .metric-card strong {
+    font-size: 2rem;
+  }
+
+  .upcoming-card {
+    padding: 18px 20px;
+    border-radius: 20px;
   }
 
   .upcoming-card-head,
   .upcoming-card-body {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
   }
 
-  .open-sale-actions {
+  .form-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin: 20px 0 24px;
+  }
+
+  .checkbox-field {
+    justify-content: end;
+    align-self: auto;
+  }
+
+  .split-layout {
+    flex-direction: row;
+    gap: 24px;
+  }
+
+  th,
+  td {
+    padding: 14px 12px;
+  }
+
+  .open-sales-panel {
+    min-height: 100%;
+  }
+}
+
+@media (min-width: 1280px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+}
+
+@media (max-width: 380px) {
+  .section-header,
+  .sale-items-header,
+  .upcoming-card-head,
+  .upcoming-card-body {
     flex-direction: column;
+    align-items: flex-start;
   }
 }

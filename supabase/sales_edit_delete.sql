@@ -3,7 +3,7 @@ create or replace function update_sale(
   p_customer_id uuid,
   p_order_date date default current_date,
   p_delivered boolean default false,
-  p_payment_method payment_method default null,
+  p_paid_amount numeric(12,2) default 0,
   p_items jsonb default '[]'::jsonb,
   p_notes text default null
 )
@@ -129,12 +129,16 @@ begin
   v_discount_amount := round((v_gross_amount * (v_customer.discount_percent / 100))::numeric, 2);
   v_total_amount := round((v_gross_amount - v_discount_amount)::numeric, 2);
 
+  if coalesce(p_paid_amount, 0) > v_total_amount then
+    raise exception 'O valor pago não pode ser maior que o total da encomenda.';
+  end if;
+
   update sales
   set
     customer_id = p_customer_id,
     order_date = p_order_date,
     delivered = coalesce(p_delivered, false),
-    payment_method = p_payment_method,
+    paid_amount = coalesce(p_paid_amount, 0),
     discount_percent = v_customer.discount_percent,
     gross_amount = v_gross_amount,
     discount_amount = v_discount_amount,
@@ -184,5 +188,5 @@ begin
 end;
 $$;
 
-grant execute on function update_sale(uuid, uuid, date, boolean, payment_method, jsonb, text) to anon, authenticated;
+grant execute on function update_sale(uuid, uuid, date, boolean, numeric, jsonb, text) to anon, authenticated;
 grant execute on function delete_sale(uuid) to anon, authenticated;

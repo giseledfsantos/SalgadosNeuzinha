@@ -6,7 +6,7 @@
       p_customer_id: payload.customerId,
       p_order_date: payload.orderDate,
       p_delivered: payload.delivered,
-      p_payment_method: payload.paymentMethod || null,
+      p_paid_amount: payload.paidAmount ?? 0,
       p_items: payload.items,
       p_notes: payload.notes || null,
     });
@@ -29,7 +29,7 @@
           order_date,
           delivered,
           sale_date,
-          payment_method,
+          paid_amount,
           gross_amount,
           discount_percent,
           discount_amount,
@@ -65,7 +65,7 @@
       p_customer_id: payload.customerId,
       p_order_date: payload.orderDate,
       p_delivered: payload.delivered,
-      p_payment_method: payload.paymentMethod || null,
+      p_paid_amount: payload.paidAmount ?? 0,
       p_items: payload.items,
       p_notes: payload.notes || null,
     });
@@ -87,10 +87,9 @@
     }
   }
 
-  async function markAsPaid(saleId, paymentMethod) {
+  async function markAsPaid(saleId) {
     const { error } = await client.rpc("mark_sale_paid", {
       p_sale_id: saleId,
-      p_payment_method: paymentMethod,
     });
 
     if (error) {

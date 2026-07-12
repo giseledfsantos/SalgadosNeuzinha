@@ -237,7 +237,7 @@
             <div class="section-header">
               <div>
                 <h3>Cadastro de encomendas</h3>
-                <p>Associe cliente, produtos, data da encomenda, entrega e forma de pagamento.</p>
+                <p>Associe cliente, produtos, data da encomenda, entrega e valor pago.</p>
               </div>
             </div>
 
@@ -253,18 +253,19 @@
                   <input id="sale-order-date" type="date" required />
                 </label>
                 <label>
-                  Forma de pagamento
-                  <select id="sale-payment-method">
-                    <option value="">Em aberto</option>
-                    <option value="pix">Pix</option>
-                    <option value="dinheiro">Dinheiro</option>
-                  </select>
+                  Valor pago
+                  <input
+                    id="sale-paid-amount"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value="0"
+                  />
                 </label>
                 <label class="checkbox-field">
                   <span>Entregue</span>
                   <span class="checkbox-control">
-                    <input id="sale-delivered" type="checkbox" />
-                    <span>Marcar encomenda como entregue</span>
+                    <input id="sale-delivered" type="checkbox" aria-label="Entregue" />
                   </span>
                 </label>
                 <label class="full-width">
@@ -295,6 +296,10 @@
                   <span>Total estimado</span>
                   <strong id="sale-total">R$ 0,00</strong>
                 </div>
+                <div>
+                  <span>Saldo em aberto</span>
+                  <strong id="sale-open-amount">R$ 0,00</strong>
+                </div>
               </div>
 
               <div class="form-actions">
@@ -314,7 +319,7 @@
             <div class="section-header">
               <div>
                 <h3>Consulta de encomendas</h3>
-                <p>Visualize as encomendas registradas, a entrega e a forma de pagamento.</p>
+                <p>Visualize as encomendas registradas, a entrega e o valor já pago.</p>
               </div>
             </div>
 
@@ -326,7 +331,7 @@
                     <th>Cliente</th>
                     <th>Itens</th>
                     <th>Entregue</th>
-                    <th>Pagamento</th>
+                    <th>Valor pago</th>
                     <th>Total</th>
                     <th>Ações</th>
                   </tr>
