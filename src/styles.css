@@ -126,6 +126,7 @@ button {
   height: 160px;
   border-radius: 18px;
   overflow: hidden;
+  padding: 10px;
   background:
     linear-gradient(180deg, rgba(251, 247, 241, 0.16), rgba(194, 138, 66, 0.28)),
     #f7efe4;
@@ -136,7 +137,8 @@ button {
 .brand-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
   display: block;
 }
 
@@ -550,11 +552,51 @@ th {
   flex-wrap: wrap;
 }
 
+.action-group-icons {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.icon-button {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-button svg,
+.icon-button span[aria-hidden="true"] {
+  width: 18px;
+  height: 18px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .action-group .table-action,
 .action-group .danger-button {
   padding: 8px 12px;
   border-radius: 12px;
   font-size: 0.9rem;
+}
+
+.action-group .icon-button {
+  padding: 0;
 }
 
 .empty-cell,
@@ -625,6 +667,50 @@ th {
   gap: 8px;
 }
 
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(34, 50, 75, 0.42);
+  backdrop-filter: blur(4px);
+}
+
+.modal-card {
+  width: min(100%, 420px);
+  background: rgba(255, 250, 244, 0.98);
+  border: 1px solid rgba(194, 138, 66, 0.16);
+  border-radius: 22px;
+  box-shadow: 0 26px 55px rgba(34, 50, 75, 0.22);
+  padding: 18px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.modal-header h3 {
+  margin: 0;
+}
+
+.modal-header p {
+  margin: 6px 0 0;
+  color: rgba(92, 52, 40, 0.8);
+}
+
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+}
+
 @media (min-width: 768px) {
   .section-header,
   .sale-items-header {
@@ -661,7 +747,8 @@ th {
   .form-actions button,
   .sale-item-actions button,
   .open-sale-actions button,
-  .action-group button {
+  .action-group button,
+  .modal-actions button {
     width: auto;
   }
 
@@ -695,6 +782,11 @@ th {
 
   .open-sale-actions {
     flex-direction: row;
+  }
+
+  .modal-actions {
+    flex-direction: row;
+    justify-content: flex-end;
   }
 }
 

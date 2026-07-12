@@ -36,6 +36,7 @@
     editingCustomerId: "",
     editingSaleId: "",
     isLoadingScreenData: false,
+    deleteModalResolver: null,
   };
 
   const elements = {
@@ -75,6 +76,30 @@
     homeOpenAmount: document.getElementById("home-open-amount"),
     homeOpenOrders: document.getElementById("home-open-orders"),
     homeUpcomingList: document.getElementById("home-upcoming-list"),
+    confirmModal: document.getElementById("confirm-modal"),
+    confirmModalTitle: document.getElementById("confirm-modal-title"),
+    confirmModalMessage: document.getElementById("confirm-modal-message"),
+    confirmModalClose: document.getElementById("confirm-modal-close"),
+    confirmModalCancel: document.getElementById("confirm-modal-cancel"),
+    confirmModalConfirm: document.getElementById("confirm-modal-confirm"),
+  };
+
+  const icons = {
+    edit: `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M12 20h9" />
+        <path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
+      </svg>
+    `,
+    delete: `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M3 6h18" />
+        <path d="M8 6V4h8v2" />
+        <path d="M19 6l-1 14H6L5 6" />
+        <path d="M10 11v6" />
+        <path d="M14 11v6" />
+      </svg>
+    `,
   };
 
   function showFeedback(message, type) {
@@ -85,6 +110,31 @@
   function clearFeedback() {
     elements.feedback.className = "feedback hidden";
     elements.feedback.textContent = "";
+  }
+
+  function closeDeleteModal(confirmed) {
+    elements.confirmModal.classList.add("hidden");
+    elements.confirmModal.setAttribute("aria-hidden", "true");
+    elements.confirmModalTitle.textContent = "Confirmar exclusão";
+    elements.confirmModalMessage.textContent =
+      "Deseja continuar com esta exclusão?";
+
+    if (state.deleteModalResolver) {
+      state.deleteModalResolver(confirmed);
+      state.deleteModalResolver = null;
+    }
+  }
+
+  function requestDeleteConfirmation(title, message) {
+    elements.confirmModalTitle.textContent = title;
+    elements.confirmModalMessage.textContent = message;
+    elements.confirmModal.classList.remove("hidden");
+    elements.confirmModal.setAttribute("aria-hidden", "false");
+    elements.confirmModalConfirm.focus();
+
+    return new Promise((resolve) => {
+      state.deleteModalResolver = resolve;
+    });
   }
 
   function requireConfiguration() {
@@ -258,6 +308,35 @@
     updateSaleSummary();
   }
 
+  function renderCrudActionButtons(entityName, entityId) {
+    return `
+      <div class="action-group action-group-icons">
+        <button
+          type="button"
+          class="table-action icon-button"
+          data-${entityName}-action="edit"
+          data-${entityName}-id="${entityId}"
+          aria-label="Alterar"
+          title="Alterar"
+        >
+          ${icons.edit}
+          <span class="sr-only">Alterar</span>
+        </button>
+        <button
+          type="button"
+          class="danger-button icon-button"
+          data-${entityName}-action="delete"
+          data-${entityName}-id="${entityId}"
+          aria-label="Excluir"
+          title="Excluir"
+        >
+          ${icons.delete}
+          <span class="sr-only">Excluir</span>
+        </button>
+      </div>
+    `;
+  }
+
   function enableProductEditing(product) {
     state.editingProductId = product.id;
     elements.productId.value = product.id;
@@ -307,7 +386,7 @@
   function renderProducts() {
     if (!state.products.length) {
       elements.productsTable.innerHTML =
-        '<tr><td colspan="5" class="empty-cell">Nenhum produto cadastrado.</td></tr>';
+        '<tr><td colspan="3" class="empty-cell">Nenhum produto cadastrado.</td></tr>';
       return;
     }
 
@@ -317,28 +396,7 @@
           <tr>
             <td>${escapeHtml(product.description)}</td>
             <td>${formatCurrency(product.sale_price)}</td>
-            <td>${formatQuantity(product.sale_quantity)}</td>
-            <td>${formatQuantity(product.stock_quantity)}</td>
-            <td>
-              <div class="action-group">
-                <button
-                  type="button"
-                  class="table-action"
-                  data-product-action="edit"
-                  data-product-id="${product.id}"
-                >
-                  Alterar
-                </button>
-                <button
-                  type="button"
-                  class="danger-button"
-                  data-product-action="delete"
-                  data-product-id="${product.id}"
-                >
-                  Excluir
-                </button>
-              </div>
-            </td>
+            <td>${renderCrudActionButtons("product", product.id)}</td>
           </tr>
         `
       )
@@ -358,26 +416,7 @@
           <tr>
             <td>${escapeHtml(customer.name)}</td>
             <td>${formatPercent(customer.discount_percent)}</td>
-            <td>
-              <div class="action-group">
-                <button
-                  type="button"
-                  class="table-action"
-                  data-customer-action="edit"
-                  data-customer-id="${customer.id}"
-                >
-                  Alterar
-                </button>
-                <button
-                  type="button"
-                  class="danger-button"
-                  data-customer-action="delete"
-                  data-customer-id="${customer.id}"
-                >
-                  Excluir
-                </button>
-              </div>
-            </td>
+            <td>${renderCrudActionButtons("customer", customer.id)}</td>
           </tr>
         `
       )
@@ -387,47 +426,17 @@
   function renderSales() {
     if (!state.sales.length) {
       elements.salesTable.innerHTML =
-        '<tr><td colspan="7" class="empty-cell">Nenhuma encomenda registrada.</td></tr>';
+        '<tr><td colspan="3" class="empty-cell">Nenhuma encomenda registrada.</td></tr>';
       return;
     }
 
     elements.salesTable.innerHTML = state.sales
       .map((sale) => {
-        const items = sale.sale_items
-          .map(
-            (item) =>
-              `${formatQuantity(item.quantity)} de ${escapeHtml(item.description)}`
-          )
-          .join("<br />");
-
         return `
           <tr>
             <td>${getOrderDateLabel(sale)}</td>
             <td>${escapeHtml(sale.customers?.name || "")}</td>
-            <td>${items}</td>
-            <td>${getDeliveredLabel(sale.delivered)}</td>
-            <td>${formatCurrency(sale.paid_amount || 0)}</td>
-            <td>${formatCurrency(sale.total_amount)}</td>
-            <td>
-              <div class="action-group">
-                <button
-                  type="button"
-                  class="table-action"
-                  data-sale-action="edit"
-                  data-sale-id="${sale.id}"
-                >
-                  Alterar
-                </button>
-                <button
-                  type="button"
-                  class="danger-button"
-                  data-sale-action="delete"
-                  data-sale-id="${sale.id}"
-                >
-                  Excluir
-                </button>
-              </div>
-            </td>
+            <td>${renderCrudActionButtons("sale", sale.id)}</td>
           </tr>
         `;
       })
@@ -890,7 +899,12 @@
       return;
     }
 
-    if (!window.confirm(`Deseja excluir o produto "${product.description}"?`)) {
+    const confirmed = await requestDeleteConfirmation(
+      "Excluir produto",
+      `Deseja excluir o produto "${product.description}"?`
+    );
+
+    if (!confirmed) {
       return;
     }
 
@@ -918,7 +932,12 @@
       return;
     }
 
-    if (!window.confirm(`Deseja excluir o cliente "${customer.name}"?`)) {
+    const confirmed = await requestDeleteConfirmation(
+      "Excluir cliente",
+      `Deseja excluir o cliente "${customer.name}"?`
+    );
+
+    if (!confirmed) {
       return;
     }
 
@@ -946,7 +965,12 @@
       return;
     }
 
-    if (!window.confirm(`Deseja excluir a encomenda ${sale.sale_code}?`)) {
+    const confirmed = await requestDeleteConfirmation(
+      "Excluir encomenda",
+      `Deseja excluir a encomenda ${sale.sale_code}?`
+    );
+
+    if (!confirmed) {
       return;
     }
 
@@ -1031,6 +1055,33 @@
     elements.saleCancelButton.addEventListener("click", () => {
       clearFeedback();
       resetSaleForm();
+    });
+
+    elements.confirmModalClose.addEventListener("click", () => {
+      closeDeleteModal(false);
+    });
+
+    elements.confirmModalCancel.addEventListener("click", () => {
+      closeDeleteModal(false);
+    });
+
+    elements.confirmModalConfirm.addEventListener("click", () => {
+      closeDeleteModal(true);
+    });
+
+    elements.confirmModal.addEventListener("click", (event) => {
+      if (event.target === elements.confirmModal) {
+        closeDeleteModal(false);
+      }
+    });
+
+    window.addEventListener("keydown", (event) => {
+      if (
+        event.key === "Escape" &&
+        !elements.confirmModal.classList.contains("hidden")
+      ) {
+        closeDeleteModal(false);
+      }
     });
 
     elements.productsTable.addEventListener("click", async (event) => {

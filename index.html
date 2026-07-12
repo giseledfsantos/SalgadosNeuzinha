@@ -148,7 +148,7 @@
             <div class="section-header">
               <div>
                 <h3>Consulta de produtos</h3>
-                <p>Visualize os produtos cadastrados e o estoque atual.</p>
+                <p>Visualize os produtos cadastrados com descrição e valor.</p>
               </div>
             </div>
 
@@ -158,8 +158,6 @@
                   <tr>
                     <th>Descrição</th>
                     <th>Valor</th>
-                    <th>Quantidade de venda</th>
-                    <th>Estoque</th>
                     <th>Ações</th>
                   </tr>
                 </thead>
@@ -319,7 +317,7 @@
             <div class="section-header">
               <div>
                 <h3>Consulta de encomendas</h3>
-                <p>Visualize as encomendas registradas, a entrega e o valor já pago.</p>
+                <p>Visualize as encomendas registradas com data e cliente.</p>
               </div>
             </div>
 
@@ -329,10 +327,6 @@
                   <tr>
                     <th>Data da encomenda</th>
                     <th>Cliente</th>
-                    <th>Itens</th>
-                    <th>Entregue</th>
-                    <th>Valor pago</th>
-                    <th>Total</th>
                     <th>Ações</th>
                   </tr>
                 </thead>
@@ -381,6 +375,39 @@
           </section>
         </section>
       </main>
+    </div>
+
+    <div id="confirm-modal" class="modal-backdrop hidden" aria-hidden="true">
+      <section
+        class="modal-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-modal-title"
+        aria-describedby="confirm-modal-message"
+      >
+        <div class="modal-header">
+          <div>
+            <h3 id="confirm-modal-title">Confirmar exclusão</h3>
+            <p id="confirm-modal-message">Deseja continuar com esta exclusão?</p>
+          </div>
+          <button
+            id="confirm-modal-close"
+            type="button"
+            class="icon-button table-action"
+            aria-label="Fechar modal"
+          >
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-actions">
+          <button id="confirm-modal-cancel" type="button" class="secondary-button">
+            Cancelar
+          </button>
+          <button id="confirm-modal-confirm" type="button" class="danger-button">
+            Excluir
+          </button>
+        </div>
+      </section>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
