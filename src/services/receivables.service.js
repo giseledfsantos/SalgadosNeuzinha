@@ -33,7 +33,8 @@
       .from("vw_open_sales")
       .select("*")
       .eq("customer_id", customerId)
-      .order("order_date", { ascending: true });
+      .order("order_date", { ascending: true })
+      .order("order_time", { ascending: true });
 
     if (error) {
       if (isMissingReceivablesStructure(error)) {

@@ -2,6 +2,7 @@ create or replace function update_sale(
   p_sale_id uuid,
   p_customer_id uuid,
   p_order_date date default current_date,
+  p_order_time time default localtime(0),
   p_delivered boolean default false,
   p_paid_amount numeric(12,2) default 0,
   p_items jsonb default '[]'::jsonb,
@@ -34,6 +35,10 @@ begin
 
   if p_order_date is null then
     raise exception 'Informe a data da encomenda.';
+  end if;
+
+  if p_order_time is null then
+    raise exception 'Informe o horário da encomenda.';
   end if;
 
   if jsonb_typeof(p_items) is distinct from 'array' or jsonb_array_length(p_items) = 0 then
@@ -120,6 +125,7 @@ begin
   set
     customer_id = p_customer_id,
     order_date = p_order_date,
+    order_time = p_order_time,
     delivered = coalesce(p_delivered, false),
     paid_amount = coalesce(p_paid_amount, 0),
     discount_percent = v_customer.discount_percent,
@@ -159,5 +165,5 @@ begin
 end;
 $$;
 
-grant execute on function update_sale(uuid, uuid, date, boolean, numeric, jsonb, text) to anon, authenticated;
+grant execute on function update_sale(uuid, uuid, date, time, boolean, numeric, jsonb, text) to anon, authenticated;
 grant execute on function delete_sale(uuid) to anon, authenticated;

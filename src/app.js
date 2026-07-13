@@ -58,6 +58,7 @@
     saleCancelButton: document.getElementById("sale-cancel-button"),
     saleCustomer: document.getElementById("sale-customer"),
     saleOrderDate: document.getElementById("sale-order-date"),
+    saleOrderTime: document.getElementById("sale-order-time"),
     saleDelivered: document.getElementById("sale-delivered"),
     salePaidAmount: document.getElementById("sale-paid-amount"),
     saleNotes: document.getElementById("sale-notes"),
@@ -249,6 +250,13 @@
     return new Date(now.getTime() - timezoneOffset).toISOString().slice(0, 10);
   }
 
+  function getCurrentTimeValue() {
+    const now = new Date();
+    return `${String(now.getHours()).padStart(2, "0")}:${String(
+      now.getMinutes()
+    ).padStart(2, "0")}`;
+  }
+
   function getOrderDateLabel(sale) {
     return formatDate(sale.order_date || sale.sale_date);
   }
@@ -318,6 +326,7 @@
     elements.saleItems.innerHTML = "";
     addSaleItemRow("", "");
     elements.saleOrderDate.value = getTodayDateValue();
+    elements.saleOrderTime.value = getCurrentTimeValue();
     elements.saleDelivered.checked = false;
     elements.salePaidAmount.value = "0";
     elements.saleSubmitButton.textContent = "Salvar Encomenda";
@@ -380,6 +389,10 @@
     elements.saleId.value = sale.id;
     elements.saleCustomer.value = sale.customer_id || sale.customers?.id || "";
     elements.saleOrderDate.value = sale.order_date || getTodayDateValue();
+    elements.saleOrderTime.value =
+      (sale.order_time || "")
+        .toString()
+        .slice(0, 5) || getCurrentTimeValue();
     elements.saleDelivered.checked = Boolean(sale.delivered);
     elements.salePaidAmount.value = Number(sale.paid_amount || 0);
     elements.saleNotes.value = sale.notes || "";
@@ -872,9 +885,15 @@
       return;
     }
 
+    if (!elements.saleOrderTime.value) {
+      showFeedback("Informe o Horário da Encomenda.", "error");
+      return;
+    }
+
     const payload = {
       customerId: elements.saleCustomer.value,
       orderDate: elements.saleOrderDate.value,
+      orderTime: elements.saleOrderTime.value,
       delivered: elements.saleDelivered.checked,
       paidAmount: Number(elements.salePaidAmount.value || 0),
       notes: elements.saleNotes.value.trim(),

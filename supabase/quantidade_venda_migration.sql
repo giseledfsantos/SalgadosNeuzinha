@@ -120,7 +120,12 @@ end
 $$;
 
 alter table sales
+  add column if not exists order_time time,
   add column if not exists paid_amount numeric(12,2);
+
+update sales
+set order_time = coalesce(order_time, sale_date::time(0), localtime(0))
+where order_time is null;
 
 do $$
 begin
@@ -149,6 +154,8 @@ end
 $$;
 
 alter table sales
+  alter column order_time set default localtime(0),
+  alter column order_time set not null,
   alter column paid_amount set default 0,
   alter column paid_amount set not null;
 
@@ -170,7 +177,9 @@ drop view if exists vw_customer_open_balances;
 drop view if exists vw_open_sales;
 
 drop function if exists create_sale(uuid, date, boolean, numeric, jsonb, text);
+drop function if exists create_sale(uuid, date, time, boolean, numeric, jsonb, text);
 drop function if exists update_sale(uuid, uuid, date, boolean, numeric, jsonb, text);
+drop function if exists update_sale(uuid, uuid, date, time, boolean, numeric, jsonb, text);
 drop function if exists mark_sale_paid(uuid);
 do $$
 begin
@@ -185,6 +194,7 @@ end
 $$;
 
 drop index if exists idx_sales_payment_method;
+create index if not exists idx_sales_order_time on sales(order_time);
 create index if not exists idx_sales_paid_amount on sales(paid_amount);
 
 alter table sales
@@ -195,6 +205,7 @@ drop type if exists payment_method;
 create or replace function create_sale(
   p_customer_id uuid,
   p_order_date date default current_date,
+  p_order_time time default localtime(0),
   p_delivered boolean default false,
   p_paid_amount numeric(12,2) default 0,
   p_items jsonb default '[]'::jsonb,
@@ -225,6 +236,10 @@ begin
     raise exception 'Informe a data da encomenda.';
   end if;
 
+  if p_order_time is null then
+    raise exception 'Informe o horário da encomenda.';
+  end if;
+
   if jsonb_typeof(p_items) is distinct from 'array' or jsonb_array_length(p_items) = 0 then
     raise exception 'Informe ao menos um item para a encomenda.';
   end if;
@@ -241,6 +256,7 @@ begin
   insert into sales (
     customer_id,
     order_date,
+    order_time,
     delivered,
     paid_amount,
     discount_percent,
@@ -249,6 +265,7 @@ begin
   values (
     p_customer_id,
     p_order_date,
+    p_order_time,
     coalesce(p_delivered, false),
     greatest(coalesce(p_paid_amount, 0), 0),
     v_customer.discount_percent,
@@ -328,6 +345,7 @@ create or replace function update_sale(
   p_sale_id uuid,
   p_customer_id uuid,
   p_order_date date default current_date,
+  p_order_time time default localtime(0),
   p_delivered boolean default false,
   p_paid_amount numeric(12,2) default 0,
   p_items jsonb default '[]'::jsonb,
@@ -360,6 +378,10 @@ begin
 
   if p_order_date is null then
     raise exception 'Informe a data da encomenda.';
+  end if;
+
+  if p_order_time is null then
+    raise exception 'Informe o horário da encomenda.';
   end if;
 
   if jsonb_typeof(p_items) is distinct from 'array' or jsonb_array_length(p_items) = 0 then
@@ -446,6 +468,7 @@ begin
   set
     customer_id = p_customer_id,
     order_date = p_order_date,
+    order_time = p_order_time,
     delivered = coalesce(p_delivered, false),
     paid_amount = coalesce(p_paid_amount, 0),
     discount_percent = v_customer.discount_percent,
@@ -493,6 +516,7 @@ select
   s.customer_id,
   c.name as customer_name,
   s.order_date,
+  s.order_time,
   s.delivered,
   s.sale_date,
   s.paid_amount,
@@ -511,7 +535,7 @@ from sales s
 join customers c on c.id = s.customer_id
 join sale_items si on si.sale_id = s.id
 where s.total_amount > s.paid_amount
-group by s.id, s.sale_code, s.customer_id, c.name, s.order_date, s.delivered, s.sale_date, s.paid_amount, s.total_amount;
+group by s.id, s.sale_code, s.customer_id, c.name, s.order_date, s.order_time, s.delivered, s.sale_date, s.paid_amount, s.total_amount;
 
 drop view if exists vw_customer_open_balances;
 
@@ -528,7 +552,7 @@ group by s.customer_id, c.name;
 
 grant select on vw_open_sales to anon, authenticated;
 grant select on vw_customer_open_balances to anon, authenticated;
-grant execute on function create_sale(uuid, date, boolean, numeric, jsonb, text) to anon, authenticated;
-grant execute on function update_sale(uuid, uuid, date, boolean, numeric, jsonb, text) to anon, authenticated;
+grant execute on function create_sale(uuid, date, time, boolean, numeric, jsonb, text) to anon, authenticated;
+grant execute on function update_sale(uuid, uuid, date, time, boolean, numeric, jsonb, text) to anon, authenticated;
 grant execute on function delete_sale(uuid) to anon, authenticated;
 grant execute on function mark_sale_paid(uuid) to anon, authenticated;

@@ -5,6 +5,7 @@
     const { data, error } = await client.rpc("create_sale", {
       p_customer_id: payload.customerId,
       p_order_date: payload.orderDate,
+      p_order_time: payload.orderTime,
       p_delivered: payload.delivered,
       p_paid_amount: payload.paidAmount ?? 0,
       p_items: payload.items,
@@ -27,6 +28,7 @@
           sale_code,
           customer_id,
           order_date,
+          order_time,
           delivered,
           sale_date,
           paid_amount,
@@ -50,7 +52,8 @@
           )
         `
       )
-      .order("order_date", { ascending: false });
+      .order("order_date", { ascending: false })
+      .order("order_time", { ascending: false });
 
     if (error) {
       throw error;
@@ -64,6 +67,7 @@
       p_sale_id: payload.saleId,
       p_customer_id: payload.customerId,
       p_order_date: payload.orderDate,
+      p_order_time: payload.orderTime,
       p_delivered: payload.delivered,
       p_paid_amount: payload.paidAmount ?? 0,
       p_items: payload.items,
