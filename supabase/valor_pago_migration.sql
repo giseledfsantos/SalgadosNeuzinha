@@ -159,10 +159,6 @@ begin
       raise exception 'A quantidade de venda do produto % deve ser maior que zero.', v_product.description;
     end if;
 
-    if v_product.stock_quantity < v_quantity then
-      raise exception 'Estoque insuficiente para o produto %.', v_product.description;
-    end if;
-
     v_unit_price := round((v_product.sale_price / v_product.sale_quantity)::numeric, 4);
     v_line_total := round((v_unit_price * v_quantity)::numeric, 2);
     v_gross_amount := v_gross_amount + v_line_total;
@@ -186,9 +182,6 @@ begin
       v_line_total
     );
 
-    update products
-    set stock_quantity = stock_quantity - v_quantity
-    where id = v_product.id;
   end loop;
 
   v_discount_amount := round((v_gross_amount * (v_customer.discount_percent / 100))::numeric, 2);
@@ -269,16 +262,6 @@ begin
     raise exception 'Cliente não encontrado.';
   end if;
 
-  for v_existing_item in
-    select product_id, quantity
-    from sale_items
-    where sale_id = p_sale_id
-  loop
-    update products
-    set stock_quantity = stock_quantity + v_existing_item.quantity
-    where id = v_existing_item.product_id;
-  end loop;
-
   delete from sale_items
   where sale_id = p_sale_id;
 
@@ -306,10 +289,6 @@ begin
       raise exception 'A quantidade de venda do produto % deve ser maior que zero.', v_product.description;
     end if;
 
-    if v_product.stock_quantity < v_quantity then
-      raise exception 'Estoque insuficiente para o produto %.', v_product.description;
-    end if;
-
     v_unit_price := round((v_product.sale_price / v_product.sale_quantity)::numeric, 4);
     v_line_total := round((v_unit_price * v_quantity)::numeric, 2);
     v_gross_amount := v_gross_amount + v_line_total;
@@ -333,9 +312,6 @@ begin
       v_line_total
     );
 
-    update products
-    set stock_quantity = stock_quantity - v_quantity
-    where id = v_product.id;
   end loop;
 
   v_discount_amount := round((v_gross_amount * (v_customer.discount_percent / 100))::numeric, 2);
@@ -376,7 +352,9 @@ begin
   end if;
 
   update sales
-  set paid_amount = total_amount
+  set
+    paid_amount = total_amount,
+    delivered = true
   where id = p_sale_id;
 
   if not found then

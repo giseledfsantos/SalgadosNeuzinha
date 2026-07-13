@@ -5,23 +5,23 @@
   const screenMeta = {
     painel: {
       title: "Painel Comercial",
-      description: "Resumo dos pedidos em aberto e das próximas encomendas.",
+      description: "Resumo dos Pedidos em Aberto e das Próximas Encomendas.",
     },
     produtos: {
       title: "Produtos",
-      description: "Cadastro e consulta dos produtos com estoque e valor de venda.",
+      description: "Cadastro e Consulta dos Produtos com Quantidade e Valor de Venda.",
     },
     clientes: {
       title: "Clientes",
-      description: "Cadastro e consulta dos clientes com percentual de desconto.",
+      description: "Cadastro e Consulta dos Clientes com Percentual de Desconto.",
     },
     vendas: {
       title: "Encomendas",
-      description: "Cadastro de encomendas com data, entrega e consulta dos pedidos registrados.",
+      description: "Cadastro de Encomendas com Data, Entrega e Consulta dos Pedidos Registrados.",
     },
     recebimentos: {
-      title: "Valores Em Aberto",
-      description: "Consulta dos clientes com pedidos pendentes e recebimentos.",
+      title: "Valores em Aberto",
+      description: "Consulta dos Clientes com Pedidos Pendentes e Recebimentos.",
     },
   };
 
@@ -91,6 +91,23 @@
         <path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
       </svg>
     `,
+    view: `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" />
+        <circle cx="12" cy="12" r="3" />
+      </svg>
+    `,
+    check: `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M20 6 9 17l-5-5" />
+      </svg>
+    `,
+    remove: `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M18 6 6 18" />
+        <path d="M6 6l12 12" />
+      </svg>
+    `,
     delete: `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <path d="M3 6h18" />
@@ -115,9 +132,9 @@
   function closeDeleteModal(confirmed) {
     elements.confirmModal.classList.add("hidden");
     elements.confirmModal.setAttribute("aria-hidden", "true");
-    elements.confirmModalTitle.textContent = "Confirmar exclusão";
+    elements.confirmModalTitle.textContent = "Confirmar Exclusão";
     elements.confirmModalMessage.textContent =
-      "Deseja continuar com esta exclusão?";
+      "Deseja Continuar com Esta Exclusão?";
 
     if (state.deleteModalResolver) {
       state.deleteModalResolver(confirmed);
@@ -143,7 +160,7 @@
     }
 
     showFeedback(
-      "Preencha o arquivo src/config.js com os dados do Supabase antes de usar o sistema.",
+      "Preencha o Arquivo src/config.js com os Dados do Supabase Antes de Usar o Sistema.",
       "error"
     );
     return false;
@@ -190,10 +207,10 @@
     try {
       await loadDashboard();
       if (showSuccessMessage) {
-        showFeedback("Dados atualizados com sucesso.", "success");
+        showFeedback("Dados Atualizados com Sucesso.", "success");
       }
     } catch (error) {
-      showFeedback(error.message || "Erro ao atualizar dados.", "error");
+      showFeedback(error.message || "Erro ao Atualizar Dados.", "error");
     } finally {
       state.isLoadingScreenData = false;
     }
@@ -282,7 +299,7 @@
     state.editingProductId = "";
     elements.productId.value = "";
     elements.productForm.reset();
-    elements.productSubmitButton.textContent = "Salvar produto";
+    elements.productSubmitButton.textContent = "Salvar Produto";
     elements.productCancelButton.classList.add("hidden");
   }
 
@@ -290,7 +307,7 @@
     state.editingCustomerId = "";
     elements.customerId.value = "";
     elements.customerForm.reset();
-    elements.customerSubmitButton.textContent = "Salvar cliente";
+    elements.customerSubmitButton.textContent = "Salvar Cliente";
     elements.customerCancelButton.classList.add("hidden");
   }
 
@@ -303,7 +320,7 @@
     elements.saleOrderDate.value = getTodayDateValue();
     elements.saleDelivered.checked = false;
     elements.salePaidAmount.value = "0";
-    elements.saleSubmitButton.textContent = "Salvar encomenda";
+    elements.saleSubmitButton.textContent = "Salvar Encomenda";
     elements.saleCancelButton.classList.add("hidden");
     updateSaleSummary();
   }
@@ -343,8 +360,7 @@
     document.getElementById("product-description").value = product.description;
     document.getElementById("product-price").value = product.sale_price;
     document.getElementById("product-sale-quantity").value = product.sale_quantity;
-    document.getElementById("product-stock").value = product.stock_quantity;
-    elements.productSubmitButton.textContent = "Atualizar produto";
+    elements.productSubmitButton.textContent = "Atualizar Produto";
     elements.productCancelButton.classList.remove("hidden");
     showScreen("produtos");
   }
@@ -354,7 +370,7 @@
     elements.customerId.value = customer.id;
     document.getElementById("customer-name").value = customer.name;
     document.getElementById("customer-discount").value = customer.discount_percent;
-    elements.customerSubmitButton.textContent = "Atualizar cliente";
+    elements.customerSubmitButton.textContent = "Atualizar Cliente";
     elements.customerCancelButton.classList.remove("hidden");
     showScreen("clientes");
   }
@@ -377,7 +393,7 @@
       addSaleItemRow("", "");
     }
 
-    elements.saleSubmitButton.textContent = "Atualizar encomenda";
+    elements.saleSubmitButton.textContent = "Atualizar Encomenda";
     elements.saleCancelButton.classList.remove("hidden");
     updateSaleSummary();
     showScreen("vendas");
@@ -386,7 +402,7 @@
   function renderProducts() {
     if (!state.products.length) {
       elements.productsTable.innerHTML =
-        '<tr><td colspan="3" class="empty-cell">Nenhum produto cadastrado.</td></tr>';
+        '<tr><td colspan="3" class="empty-cell">Nenhum Produto Cadastrado.</td></tr>';
       return;
     }
 
@@ -406,7 +422,7 @@
   function renderCustomers() {
     if (!state.customers.length) {
       elements.customersTable.innerHTML =
-        '<tr><td colspan="3" class="empty-cell">Nenhum cliente cadastrado.</td></tr>';
+        '<tr><td colspan="3" class="empty-cell">Nenhum Cliente Cadastrado.</td></tr>';
       return;
     }
 
@@ -426,7 +442,7 @@
   function renderSales() {
     if (!state.sales.length) {
       elements.salesTable.innerHTML =
-        '<tr><td colspan="3" class="empty-cell">Nenhuma encomenda registrada.</td></tr>';
+        '<tr><td colspan="3" class="empty-cell">Nenhuma Encomenda Registrada.</td></tr>';
       return;
     }
 
@@ -446,7 +462,7 @@
   function renderBalances() {
     if (!state.balances.length) {
       elements.balancesTable.innerHTML =
-        '<tr><td colspan="4" class="empty-cell">Nenhum valor em aberto no momento.</td></tr>';
+        '<tr><td colspan="4" class="empty-cell">Nenhum Valor em Aberto no Momento.</td></tr>';
       return;
     }
 
@@ -458,14 +474,19 @@
             <td>${balance.open_orders}</td>
             <td>${formatCurrency(balance.total_open_amount)}</td>
             <td>
-              <button
-                type="button"
-                class="table-action"
-                data-customer-id="${balance.customer_id}"
-                data-customer-name="${escapeHtml(balance.customer_name)}"
-              >
-                Ver pedidos
-              </button>
+              <div class="action-group action-group-icons">
+                <button
+                  type="button"
+                  class="table-action icon-button"
+                  data-customer-id="${balance.customer_id}"
+                  data-customer-name="${escapeHtml(balance.customer_name)}"
+                  aria-label="Ver Pedidos"
+                  title="Ver Pedidos"
+                >
+                  ${icons.view}
+                  <span class="sr-only">Ver Pedidos</span>
+                </button>
+              </div>
             </td>
           </tr>
         `
@@ -491,7 +512,7 @@
     if (!upcomingSales.length) {
       elements.homeUpcomingList.className = "upcoming-list empty-state";
       elements.homeUpcomingList.textContent =
-        "Nenhuma encomenda pendente no momento.";
+        "Nenhuma Encomenda Pendente no Momento.";
       return;
     }
 
@@ -507,7 +528,7 @@
                 <strong>${escapeHtml(sale.customers?.name || "")}</strong>
                 <span>${getOrderDateLabel(sale)}</span>
               </div>
-              <span class="upcoming-badge">Entrega pendente</span>
+              <span class="upcoming-badge">Entrega Pendente</span>
             </div>
             <div class="upcoming-card-body">
               <p>${itemCount} item(ns) na encomenda</p>
@@ -531,12 +552,12 @@
       .join("");
 
     elements.saleCustomer.innerHTML =
-      '<option value="">Selecione um cliente</option>' + options;
+      '<option value="">Selecione um Cliente</option>' + options;
   }
 
   function buildProductOptions(selectedProductId) {
     return [
-      '<option value="">Selecione um produto</option>',
+      '<option value="">Selecione um Produto</option>',
       ...state.products.map(
         (product) => `
           <option value="${product.id}" ${
@@ -559,7 +580,7 @@
     const totalElement = row.querySelector(".sale-item-line-total");
 
     if (!product) {
-      details.textContent = "Selecione um produto para calcular automaticamente.";
+      details.textContent = "Selecione um Produto para Calcular Automaticamente.";
       totalElement.textContent = formatCurrency(0);
       return;
     }
@@ -595,12 +616,18 @@
         />
       </label>
       <div class="sale-item-actions">
-        <button type="button" class="secondary-button remove-item-button">
-          Remover
+        <button
+          type="button"
+          class="secondary-button icon-button remove-item-button"
+          aria-label="Remover Item"
+          title="Remover Item"
+        >
+          ${icons.remove}
+          <span class="sr-only">Remover Item</span>
         </button>
       </div>
       <div class="sale-item-meta">
-        <span class="sale-item-details">Selecione um produto para calcular automaticamente.</span>
+        <span class="sale-item-details">Selecione um Produto para Calcular Automaticamente.</span>
         <strong class="sale-item-line-total">${formatCurrency(0)}</strong>
       </div>
     `;
@@ -612,12 +639,12 @@
   function renderOpenSales(openSales, customerName) {
     elements.openSalesTitle.textContent = customerName
       ? `Pedidos em aberto de ${customerName}`
-      : "Selecione um cliente para consultar.";
+      : "Selecione um Cliente para Consultar.";
 
     if (!openSales.length) {
       elements.openSalesList.className = "open-sales-list empty-state";
       elements.openSalesList.textContent =
-        "Este cliente não possui pedidos pendentes.";
+        "Selecione um Pedido para Visualizar.";
       return;
     }
 
@@ -635,11 +662,11 @@
               <strong>${formatCurrency(sale.total_amount)}</strong>
             </div>
             <div>
-              <span>Valor pago</span>
+              <span>Valor Pago</span>
               <p>${formatCurrency(sale.paid_amount || 0)}</p>
             </div>
             <div>
-              <span>Em aberto</span>
+              <span>Em Aberto</span>
               <strong>${formatCurrency(sale.open_amount || 0)}</strong>
             </div>
             <div>
@@ -648,15 +675,18 @@
             </div>
             <div>
               <span>Produtos</span>
-              <p>${escapeHtml(sale.items_summary || "Sem itens")}</p>
+              <p>${escapeHtml(sale.items_summary || "Sem Itens")}</p>
             </div>
             <div class="open-sale-actions">
               <button
                 type="button"
-                class="table-action"
+                class="success-button icon-button"
                 data-sale-id="${sale.sale_id}"
+                aria-label="Quitar Pedido"
+                title="Quitar Pedido"
               >
-                Quitar pedido
+                ${icons.check}
+                <span class="sr-only">Quitar Pedido</span>
               </button>
             </div>
           </article>
@@ -757,11 +787,10 @@
       description: formData.get("description").trim(),
       sale_price: Number(formData.get("sale_price")),
       sale_quantity: Number(formData.get("sale_quantity")),
-      stock_quantity: Number(formData.get("stock_quantity")),
     };
 
     if (payload.sale_quantity <= 0) {
-      showFeedback("Informe uma quantidade de venda maior que zero.", "error");
+      showFeedback("Informe uma Quantidade de Venda Maior que Zero.", "error");
       return;
     }
 
@@ -771,7 +800,7 @@
         resetProductForm();
         await loadDashboard();
         showScreen("produtos");
-        showFeedback("Produto atualizado com sucesso.", "success");
+        showFeedback("Produto Atualizado com Sucesso.", "success");
         return;
       }
 
@@ -779,9 +808,9 @@
       resetProductForm();
       await loadDashboard();
       showScreen("produtos");
-      showFeedback("Produto cadastrado com sucesso.", "success");
+      showFeedback("Produto Cadastrado com Sucesso.", "success");
     } catch (error) {
-      showFeedback(error.message || "Erro ao salvar produto.", "error");
+      showFeedback(error.message || "Erro ao Salvar Produto.", "error");
     }
   }
 
@@ -805,7 +834,7 @@
         resetCustomerForm();
         await loadDashboard();
         showScreen("clientes");
-        showFeedback("Cliente atualizado com sucesso.", "success");
+        showFeedback("Cliente Atualizado com Sucesso.", "success");
         return;
       }
 
@@ -813,9 +842,9 @@
       resetCustomerForm();
       await loadDashboard();
       showScreen("clientes");
-      showFeedback("Cliente cadastrado com sucesso.", "success");
+      showFeedback("Cliente Cadastrado com Sucesso.", "success");
     } catch (error) {
-      showFeedback(error.message || "Erro ao salvar cliente.", "error");
+      showFeedback(error.message || "Erro ao Salvar Cliente.", "error");
     }
   }
 
@@ -829,17 +858,17 @@
 
     const items = collectSaleItems();
     if (!items.length) {
-      showFeedback("Adicione pelo menos um item válido para registrar a encomenda.", "error");
+      showFeedback("Adicione pelo Menos um Item Válido para Registrar a Encomenda.", "error");
       return;
     }
 
     if (!elements.saleCustomer.value) {
-      showFeedback("Selecione um cliente para registrar a encomenda.", "error");
+      showFeedback("Selecione um Cliente para Registrar a Encomenda.", "error");
       return;
     }
 
     if (!elements.saleOrderDate.value) {
-      showFeedback("Informe a data da encomenda.", "error");
+      showFeedback("Informe a Data da Encomenda.", "error");
       return;
     }
 
@@ -855,12 +884,12 @@
     const { total } = getSaleSummaryValues();
 
     if (payload.paidAmount < 0) {
-      showFeedback("Informe um valor pago igual ou maior que zero.", "error");
+      showFeedback("Informe um Valor Pago Igual ou Maior que Zero.", "error");
       return;
     }
 
     if (payload.paidAmount > total) {
-      showFeedback("O valor pago não pode ser maior que o total da encomenda.", "error");
+      showFeedback("O Valor Pago Não Pode Ser Maior que o Total da Encomenda.", "error");
       return;
     }
 
@@ -873,7 +902,7 @@
         resetSaleForm();
         await loadDashboard();
         showScreen("vendas");
-        showFeedback("Encomenda atualizada com sucesso.", "success");
+        showFeedback("Encomenda Atualizada com Sucesso.", "success");
         return;
       }
 
@@ -881,9 +910,9 @@
       resetSaleForm();
       await loadDashboard();
       showScreen("vendas");
-      showFeedback("Encomenda cadastrada com sucesso.", "success");
+      showFeedback("Encomenda Cadastrada com Sucesso.", "success");
     } catch (error) {
-      showFeedback(error.message || "Erro ao salvar encomenda.", "error");
+      showFeedback(error.message || "Erro ao Salvar Encomenda.", "error");
     }
   }
 
@@ -900,8 +929,8 @@
     }
 
     const confirmed = await requestDeleteConfirmation(
-      "Excluir produto",
-      `Deseja excluir o produto "${product.description}"?`
+      "Excluir Produto",
+      `Deseja Excluir o Produto "${product.description}"?`
     );
 
     if (!confirmed) {
@@ -914,9 +943,9 @@
         resetProductForm();
       }
       await loadDashboard();
-      showFeedback("Produto excluído com sucesso.", "success");
+      showFeedback("Produto Excluído com Sucesso.", "success");
     } catch (error) {
-      showFeedback(error.message || "Erro ao excluir produto.", "error");
+      showFeedback(error.message || "Erro ao Excluir Produto.", "error");
     }
   }
 
@@ -933,8 +962,8 @@
     }
 
     const confirmed = await requestDeleteConfirmation(
-      "Excluir cliente",
-      `Deseja excluir o cliente "${customer.name}"?`
+      "Excluir Cliente",
+      `Deseja Excluir o Cliente "${customer.name}"?`
     );
 
     if (!confirmed) {
@@ -947,9 +976,9 @@
         resetCustomerForm();
       }
       await loadDashboard();
-      showFeedback("Cliente excluído com sucesso.", "success");
+      showFeedback("Cliente Excluído com Sucesso.", "success");
     } catch (error) {
-      showFeedback(error.message || "Erro ao excluir cliente.", "error");
+      showFeedback(error.message || "Erro ao Excluir Cliente.", "error");
     }
   }
 
@@ -966,8 +995,8 @@
     }
 
     const confirmed = await requestDeleteConfirmation(
-      "Excluir encomenda",
-      `Deseja excluir a encomenda ${sale.sale_code}?`
+      "Excluir Encomenda",
+      `Deseja Excluir a Encomenda ${sale.sale_code}?`
     );
 
     if (!confirmed) {
@@ -981,11 +1010,11 @@
       }
       await loadDashboard();
       showScreen("vendas");
-      showFeedback("Encomenda excluída com sucesso.", "success");
+      showFeedback("Encomenda Excluída com Sucesso.", "success");
     } catch (error) {
       showFeedback(
         error.message ||
-          "Erro ao excluir encomenda. Execute o SQL complementar de alteração no Supabase.",
+          "Erro ao Excluir Encomenda. Execute o SQL Complementar de Alteração no Supabase.",
         "error"
       );
     }
@@ -1002,10 +1031,10 @@
       renderOpenSales(openSales, customerName);
 
       if (showMessage) {
-        showFeedback(`Consulta carregada para ${customerName}.`, "success");
+        showFeedback(`Consulta Carregada para ${customerName}.`, "success");
       }
     } catch (error) {
-      showFeedback(error.message || "Erro ao consultar pedidos em aberto.", "error");
+      showFeedback(error.message || "Erro ao Consultar Pedidos em Aberto.", "error");
     }
   }
 
@@ -1017,9 +1046,9 @@
     try {
       await Sales.markAsPaid(saleId);
       await loadDashboard();
-      showFeedback("Pedido baixado com sucesso.", "success");
+      showFeedback("Pedido Baixado com Sucesso.", "success");
     } catch (error) {
-      showFeedback(error.message || "Erro ao baixar o pedido.", "error");
+      showFeedback(error.message || "Erro ao Baixar o Pedido.", "error");
     }
   }
 
@@ -1125,16 +1154,19 @@
     });
 
     elements.saleItems.addEventListener("click", (event) => {
-      if (event.target.classList.contains("remove-item-button")) {
-        const rows = elements.saleItems.querySelectorAll(".sale-item-row");
-        if (rows.length === 1) {
-          showFeedback("A encomenda precisa ter pelo menos uma linha de item.", "error");
-          return;
-        }
-
-        event.target.closest(".sale-item-row").remove();
-        updateSaleSummary();
+      const removeButton = event.target.closest(".remove-item-button");
+      if (!removeButton) {
+        return;
       }
+
+      const rows = elements.saleItems.querySelectorAll(".sale-item-row");
+      if (rows.length === 1) {
+        showFeedback("A Encomenda Precisa Ter pelo Menos uma Linha de Item.", "error");
+        return;
+      }
+
+      removeButton.closest(".sale-item-row").remove();
+      updateSaleSummary();
     });
 
     elements.saleItems.addEventListener("input", (event) => {
@@ -1198,7 +1230,7 @@
       await loadDashboard();
       renderOpenSales([], "");
     } catch (error) {
-      showFeedback(error.message || "Erro ao carregar os dados iniciais.", "error");
+      showFeedback(error.message || "Erro ao Carregar os Dados Iniciais.", "error");
     }
   }
 

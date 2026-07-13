@@ -25,14 +25,14 @@
 
           <nav class="menu">
             <a href="#painel" data-screen-link="painel">Painel</a>
-            <a href="#produtos" data-screen-link="produtos">Produtos</a>
-            <a href="#clientes" data-screen-link="clientes">Clientes</a>
             <a href="#vendas" data-screen-link="vendas">Encomendas</a>
-            <a href="#recebimentos" data-screen-link="recebimentos">Em aberto</a>
+            <a href="#recebimentos" data-screen-link="recebimentos">Em Aberto</a>
+            <a href="#clientes" data-screen-link="clientes">Clientes</a>
+            <a href="#produtos" data-screen-link="produtos">Produtos</a>
           </nav>
 
           <div id="config-alert" class="config-alert hidden">
-            Preencha `src/config.js` com a URL e a chave anon do Supabase.
+            Preencha `src/config.js` com a URL e a Chave Anon do Supabase.
           </div>
         </div>
       </aside>
@@ -48,22 +48,22 @@
           <section class="card">
             <div class="section-header">
               <div>
-                <h3>Painel comercial</h3>
-                <p>Resumo dos pedidos em aberto e das próximas encomendas.</p>
+                <h3>Painel Comercial</h3>
+                <p>Resumo dos Pedidos em Aberto e das Próximas Encomendas.</p>
               </div>
             </div>
 
             <div class="dashboard-grid">
               <article class="metric-card">
-                <span class="metric-label">Total em aberto</span>
+                <span class="metric-label">Total em Aberto</span>
                 <strong id="home-open-amount">R$ 0,00</strong>
-                <p>Soma de todos os pedidos pendentes dos clientes.</p>
+                <p>Soma de Todos os Pedidos Pendentes dos Clientes.</p>
               </article>
 
               <article class="metric-card">
-                <span class="metric-label">Próximas encomendas</span>
+                <span class="metric-label">Próximas Encomendas</span>
                 <strong id="home-open-orders">0</strong>
-                <p>Quantidade de encomendas pendentes aguardando entrega.</p>
+                <p>Quantidade de Encomendas Pendentes Aguardando Entrega.</p>
               </article>
             </div>
           </section>
@@ -71,14 +71,14 @@
           <section class="card">
             <div class="section-header">
               <div>
-                <h3>Lista de próximas encomendas</h3>
-                <p>Encomendas pendentes para acompanhamento rápido.</p>
+                <h3>Lista de Próximas Encomendas</h3>
+                <p>Encomendas Pendentes para Acompanhamento Rápido.</p>
               </div>
-              <a class="panel-link" href="#recebimentos">Abrir tela de em aberto</a>
+              <a class="panel-link" href="#recebimentos">Abrir Tela de Em Aberto</a>
             </div>
 
             <div id="home-upcoming-list" class="upcoming-list empty-state">
-              Nenhuma encomenda pendente no momento.
+              Nenhuma Encomenda Pendente no Momento.
             </div>
           </section>
         </section>
@@ -87,8 +87,8 @@
           <section class="card">
             <div class="section-header">
               <div>
-                <h3>Cadastro de produtos</h3>
-                <p>Descrição, valor de venda, quantidade de venda e estoque.</p>
+                <h3>Cadastro de Produtos</h3>
+                <p>Descrição, Valor de Venda e Quantidade de Venda.</p>
               </div>
             </div>
 
@@ -99,7 +99,7 @@
                 <input id="product-description" name="description" required />
               </label>
               <label>
-                Valor de venda
+                Valor de Venda
                 <input
                   id="product-price"
                   name="sale_price"
@@ -110,7 +110,7 @@
                 />
               </label>
               <label>
-                Quantidade de venda
+                Quantidade de Venda
                 <input
                   id="product-sale-quantity"
                   name="sale_quantity"
@@ -120,19 +120,8 @@
                   required
                 />
               </label>
-              <label>
-                Quantidade em estoque
-                <input
-                  id="product-stock"
-                  name="stock_quantity"
-                  type="number"
-                  min="0"
-                  step="0.001"
-                  required
-                />
-              </label>
               <div class="form-actions">
-                <button id="product-submit-button" type="submit">Salvar produto</button>
+                <button id="product-submit-button" type="submit">Salvar Produto</button>
                 <button
                   id="product-cancel-button"
                   class="secondary-button hidden"
@@ -147,8 +136,8 @@
           <section class="card">
             <div class="section-header">
               <div>
-                <h3>Consulta de produtos</h3>
-                <p>Visualize os produtos cadastrados com descrição e valor.</p>
+                <h3>Consulta de Produtos</h3>
+                <p>Visualize os Produtos Cadastrados com Descrição e Valor.</p>
               </div>
             </div>
 
@@ -171,8 +160,8 @@
           <section class="card">
             <div class="section-header">
               <div>
-                <h3>Cadastro de clientes</h3>
-                <p>Nome do cliente e percentual de desconto.</p>
+                <h3>Cadastro de Clientes</h3>
+                <p>Nome do Cliente e Percentual de Desconto.</p>
               </div>
             </div>
 
@@ -183,7 +172,7 @@
                 <input id="customer-name" name="name" required />
               </label>
               <label>
-                Percentual de desconto
+                Percentual de Desconto
                 <input
                   id="customer-discount"
                   name="discount_percent"
@@ -195,7 +184,7 @@
                 />
               </label>
               <div class="form-actions">
-                <button id="customer-submit-button" type="submit">Salvar cliente</button>
+                <button id="customer-submit-button" type="submit">Salvar Cliente</button>
                 <button
                   id="customer-cancel-button"
                   class="secondary-button hidden"
@@ -210,8 +199,8 @@
           <section class="card">
             <div class="section-header">
               <div>
-                <h3>Consulta de clientes</h3>
-                <p>Veja os clientes cadastrados e os descontos configurados.</p>
+                <h3>Consulta de Clientes</h3>
+                <p>Veja os Clientes Cadastrados e os Descontos Configurados.</p>
               </div>
             </div>
 
@@ -234,8 +223,8 @@
           <section class="card">
             <div class="section-header">
               <div>
-                <h3>Cadastro de encomendas</h3>
-                <p>Associe cliente, produtos, data da encomenda, entrega e valor pago.</p>
+                <h3>Cadastro de Encomendas</h3>
+                <p>Associe Cliente, Produtos, Data da Encomenda, Entrega e Valor Pago.</p>
               </div>
             </div>
 
@@ -247,11 +236,11 @@
                   <select id="sale-customer" required></select>
                 </label>
                 <label>
-                  Data da encomenda
+                  Data da Encomenda
                   <input id="sale-order-date" type="date" required />
                 </label>
                 <label>
-                  Valor pago
+                  Valor Pago
                   <input
                     id="sale-paid-amount"
                     type="number"
@@ -273,35 +262,38 @@
               </div>
 
               <div class="sale-items-header">
-                <h4>Produtos da encomenda</h4>
-                <button id="add-item-button" class="secondary-button" type="button">
-                  Adicionar item
-                </button>
+                <h4>Produtos da Encomenda</h4>
               </div>
 
               <div id="sale-items" class="sale-items"></div>
 
+              <div class="sale-items-actions">
+                <button id="add-item-button" class="secondary-button" type="button">
+                  Adicionar Mais Itens
+                </button>
+              </div>
+
               <div class="sale-summary">
                 <div>
-                  <span>Subtotal estimado</span>
+                  <span>Subtotal Estimado</span>
                   <strong id="sale-subtotal">R$ 0,00</strong>
                 </div>
                 <div>
-                  <span>Desconto do cliente</span>
+                  <span>Desconto do Cliente</span>
                   <strong id="sale-discount">R$ 0,00</strong>
                 </div>
                 <div>
-                  <span>Total estimado</span>
+                  <span>Total Estimado</span>
                   <strong id="sale-total">R$ 0,00</strong>
                 </div>
                 <div>
-                  <span>Saldo em aberto</span>
+                  <span>Saldo em Aberto</span>
                   <strong id="sale-open-amount">R$ 0,00</strong>
                 </div>
               </div>
 
               <div class="form-actions">
-                <button id="sale-submit-button" type="submit">Salvar encomenda</button>
+                <button id="sale-submit-button" type="submit">Salvar Encomenda</button>
                 <button
                   id="sale-cancel-button"
                   class="secondary-button hidden"
@@ -316,8 +308,8 @@
           <section class="card">
             <div class="section-header">
               <div>
-                <h3>Consulta de encomendas</h3>
-                <p>Visualize as encomendas registradas com data e cliente.</p>
+                <h3>Consulta de Encomendas</h3>
+                <p>Visualize as Encomendas Registradas com Data e Cliente.</p>
               </div>
             </div>
 
@@ -325,7 +317,7 @@
               <table>
                 <thead>
                   <tr>
-                    <th>Data da encomenda</th>
+                    <th>Data da Encomenda</th>
                     <th>Cliente</th>
                     <th>Ações</th>
                   </tr>
@@ -340,8 +332,8 @@
           <section class="card">
             <div class="section-header">
               <div>
-                <h3>Consulta de valores em aberto</h3>
-                <p>Veja os pedidos pendentes e o total devido por cliente.</p>
+                <h3>Consulta de Valores em Aberto</h3>
+                <p>Veja os Pedidos Pendentes e o Total Devido por Cliente.</p>
               </div>
             </div>
 
@@ -352,7 +344,7 @@
                     <tr>
                       <th>Cliente</th>
                       <th>Pedidos</th>
-                      <th>Total em aberto</th>
+                      <th>Total em Aberto</th>
                       <th></th>
                     </tr>
                   </thead>
@@ -363,12 +355,12 @@
               <div class="open-sales-panel">
                 <div class="section-header compact">
                   <div>
-                    <h4>Pedidos em aberto</h4>
-                    <p id="open-sales-title">Selecione um cliente para consultar.</p>
+                    <h4>Pedidos em Aberto</h4>
+                    <p id="open-sales-title">Selecione um Cliente para Consultar.</p>
                   </div>
                 </div>
                 <div id="open-sales-list" class="open-sales-list empty-state">
-                  Nenhum cliente selecionado.
+                  Nenhum Cliente Selecionado.
                 </div>
               </div>
             </div>
@@ -387,14 +379,14 @@
       >
         <div class="modal-header">
           <div>
-            <h3 id="confirm-modal-title">Confirmar exclusão</h3>
-            <p id="confirm-modal-message">Deseja continuar com esta exclusão?</p>
+            <h3 id="confirm-modal-title">Confirmar Exclusão</h3>
+            <p id="confirm-modal-message">Deseja Continuar com Esta Exclusão?</p>
           </div>
           <button
             id="confirm-modal-close"
             type="button"
             class="icon-button table-action"
-            aria-label="Fechar modal"
+            aria-label="Fechar Modal"
           >
             <span aria-hidden="true">×</span>
           </button>

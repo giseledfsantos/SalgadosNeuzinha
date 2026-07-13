@@ -450,6 +450,12 @@ button {
   box-shadow: none;
 }
 
+.success-button {
+  background: rgba(123, 190, 135, 0.22);
+  color: #245235;
+  box-shadow: none;
+}
+
 .form-actions {
   display: flex;
   align-items: stretch;
@@ -468,6 +474,17 @@ button {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.sale-items-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.sale-items-actions button {
+  width: 100%;
 }
 
 .sale-item-row {
@@ -746,6 +763,7 @@ th {
 
   .form-actions button,
   .sale-item-actions button,
+  .sale-items-actions button,
   .open-sale-actions button,
   .action-group button,
   .modal-actions button {
