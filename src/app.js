@@ -838,7 +838,7 @@
     const formData = new FormData(elements.customerForm);
     const payload = {
       name: formData.get("name").trim(),
-      discount_percent: Number(formData.get("discount_percent")),
+      discount_percent: Number(formData.get("discount_percent") || 0),
     };
 
     try {
