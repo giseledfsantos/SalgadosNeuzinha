@@ -116,6 +116,7 @@ declare
   v_item jsonb;
   v_product products%rowtype;
   v_sale_id uuid;
+  v_order_time time;
   v_quantity numeric(12,3);
   v_unit_price numeric(12,4);
   v_gross_amount numeric(12,2) := 0;
@@ -134,6 +135,8 @@ begin
   if p_order_time is null then
     raise exception 'Informe o horário da encomenda.';
   end if;
+
+  v_order_time := date_trunc('minute', p_order_time)::time;
 
   if jsonb_typeof(p_items) is distinct from 'array' or jsonb_array_length(p_items) = 0 then
     raise exception 'Informe ao menos um item para a encomenda.';
@@ -160,7 +163,7 @@ begin
   values (
     p_customer_id,
     p_order_date,
-    p_order_time,
+    v_order_time,
     coalesce(p_delivered, false),
     greatest(coalesce(p_paid_amount, 0), 0),
     v_customer.discount_percent,
@@ -281,6 +284,7 @@ declare
   v_item jsonb;
   v_product products%rowtype;
   v_existing_item record;
+  v_order_time time;
   v_quantity numeric(12,3);
   v_unit_price numeric(12,4);
   v_gross_amount numeric(12,2) := 0;
@@ -303,6 +307,8 @@ begin
   if p_order_time is null then
     raise exception 'Informe o horário da encomenda.';
   end if;
+
+  v_order_time := date_trunc('minute', p_order_time)::time;
 
   if jsonb_typeof(p_items) is distinct from 'array' or jsonb_array_length(p_items) = 0 then
     raise exception 'Informe ao menos um item para a encomenda.';
@@ -388,7 +394,7 @@ begin
   set
     customer_id = p_customer_id,
     order_date = p_order_date,
-    order_time = p_order_time,
+    order_time = v_order_time,
     delivered = coalesce(p_delivered, false),
     paid_amount = coalesce(p_paid_amount, 0),
     discount_percent = v_customer.discount_percent,

@@ -257,6 +257,16 @@
     ).padStart(2, "0")}`;
   }
 
+  function formatOrderTimeInputValue(value) {
+    const match = String(value || "").match(/(\d{2}):(\d{2})/);
+    return match ? `${match[1]}:${match[2]}` : "";
+  }
+
+  function normalizeOrderTimeForSave(value) {
+    const formattedValue = formatOrderTimeInputValue(value);
+    return formattedValue ? `${formattedValue}:00` : "";
+  }
+
   function getOrderDateLabel(sale) {
     return formatDate(sale.order_date || sale.sale_date);
   }
@@ -324,7 +334,7 @@
     elements.saleId.value = "";
     elements.saleForm.reset();
     elements.saleItems.innerHTML = "";
-    addSaleItemRow("", "");
+    addSaleItemRow("", 1);
     elements.saleOrderDate.value = getTodayDateValue();
     elements.saleOrderTime.value = getCurrentTimeValue();
     elements.saleDelivered.checked = false;
@@ -390,9 +400,7 @@
     elements.saleCustomer.value = sale.customer_id || sale.customers?.id || "";
     elements.saleOrderDate.value = sale.order_date || getTodayDateValue();
     elements.saleOrderTime.value =
-      (sale.order_time || "")
-        .toString()
-        .slice(0, 5) || getCurrentTimeValue();
+      formatOrderTimeInputValue(sale.order_time) || getCurrentTimeValue();
     elements.saleDelivered.checked = Boolean(sale.delivered);
     elements.salePaidAmount.value = Number(sale.paid_amount || 0);
     elements.saleNotes.value = sale.notes || "";
@@ -403,7 +411,7 @@
     });
 
     if (!sale.sale_items.length) {
-      addSaleItemRow("", "");
+      addSaleItemRow("", 1);
     }
 
     elements.saleSubmitButton.textContent = "Atualizar Encomenda";
@@ -609,6 +617,8 @@
   }
 
   function addSaleItemRow(selectedProductId, quantity) {
+    const initialQuantity =
+      quantity === undefined || quantity === null || quantity === "" ? 1 : quantity;
     const itemRow = document.createElement("div");
     itemRow.className = "sale-item-row";
     itemRow.innerHTML = `
@@ -625,7 +635,7 @@
           type="number"
           min="0.001"
           step="0.001"
-          value="${quantity || ""}"
+          value="${initialQuantity}"
         />
       </label>
       <div class="sale-item-actions">
@@ -893,7 +903,7 @@
     const payload = {
       customerId: elements.saleCustomer.value,
       orderDate: elements.saleOrderDate.value,
-      orderTime: elements.saleOrderTime.value,
+      orderTime: normalizeOrderTimeForSave(elements.saleOrderTime.value),
       delivered: elements.saleDelivered.checked,
       paidAmount: Number(elements.salePaidAmount.value || 0),
       notes: elements.saleNotes.value.trim(),
@@ -1168,7 +1178,7 @@
     elements.saleCustomer.addEventListener("change", updateSaleSummary);
     elements.salePaidAmount.addEventListener("input", updateSaleSummary);
     elements.addItemButton.addEventListener("click", () => {
-      addSaleItemRow("", "");
+      addSaleItemRow("", 1);
       updateSaleSummary();
     });
 
