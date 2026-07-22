@@ -267,8 +267,28 @@
     return formattedValue ? `${formattedValue}:00` : "";
   }
 
+  function getSaleFallbackDateValue(sale) {
+    return String(sale.sale_date || "").slice(0, 10);
+  }
+
+  function getSaleFallbackTimeValue(sale) {
+    return formatOrderTimeInputValue(String(sale.sale_date || "").slice(11, 16));
+  }
+
   function getOrderDateLabel(sale) {
-    return formatDate(sale.order_date || sale.sale_date);
+    const dateLabel = formatDate(sale.order_date || getSaleFallbackDateValue(sale));
+    const timeLabel =
+      formatOrderTimeInputValue(sale.order_time) || getSaleFallbackTimeValue(sale);
+
+    return timeLabel ? `${dateLabel} às ${timeLabel}` : dateLabel;
+  }
+
+  function getSaleOrderSortValue(sale) {
+    const dateValue = sale.order_date || getSaleFallbackDateValue(sale);
+    const timeValue =
+      formatOrderTimeInputValue(sale.order_time) || getSaleFallbackTimeValue(sale);
+
+    return `${dateValue || ""} ${timeValue || ""}`;
   }
 
   function getProductSaleQuantity(product) {
@@ -524,7 +544,9 @@
       .filter((sale) => !sale.delivered)
       .slice()
       .sort((firstSale, secondSale) => {
-        return new Date(firstSale.order_date || firstSale.sale_date) - new Date(secondSale.order_date || secondSale.sale_date);
+        return getSaleOrderSortValue(firstSale).localeCompare(
+          getSaleOrderSortValue(secondSale)
+        );
       });
 
     elements.homeOpenAmount.textContent = formatCurrency(openAmount);
@@ -678,7 +700,7 @@
           <article class="open-sale-card">
             <div>
               <strong>Pedido ${sale.sale_code}</strong>
-              <span>${formatDate(sale.order_date || sale.sale_date)}</span>
+              <span>${getOrderDateLabel(sale)}</span>
             </div>
             <div>
               <span>Total</span>

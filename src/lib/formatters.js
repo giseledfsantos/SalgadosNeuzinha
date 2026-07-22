@@ -26,7 +26,19 @@
       return "-";
     }
 
-    return new Date(value).toLocaleString("pt-BR");
+    const stringValue = String(value);
+    const dateOnlyMatch = stringValue.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+    if (dateOnlyMatch) {
+      return `${dateOnlyMatch[3]}/${dateOnlyMatch[2]}/${dateOnlyMatch[1]}`;
+    }
+
+    const parsedDate = new Date(stringValue);
+    if (Number.isNaN(parsedDate.getTime())) {
+      return stringValue;
+    }
+
+    return parsedDate.toLocaleDateString("pt-BR");
   }
 
   window.Formatters = {
